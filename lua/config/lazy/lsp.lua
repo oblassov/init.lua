@@ -2,7 +2,7 @@ return {
 
 	{ -- LSP Plugins
 		-- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
-		-- used for completion, annotations and signatures of Neovim apis
+		-- used for completion, annotations and signatures of Neovim API
 		"folke/lazydev.nvim",
 		ft = "lua",
 		opts = {
@@ -28,6 +28,16 @@ return {
 		},
 
 		config = function()
+			-- Passing some arguments for clangd to see standard libraries headers
+			--			local handle = io.popen("command -v ucrt64")
+			--			local compiler
+			--			if handle then
+			--				compiler = handle:read("*a"):sub(1, -2)
+			--				handle:close()
+			--			else
+			--				compiler = nil
+			--			end
+
 			local sign = function(opts)
 				vim.fn.sign_define(opts.name, {
 					texthl = opts.name,
@@ -58,114 +68,6 @@ return {
 				},
 			})
 
-			vim.api.nvim_create_autocmd("LspAttach", {
-				group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
-				callback = function(event)
-					-- NOTE: Remember that Lua is a real programming language, and as such it is possible
-					-- to define small helper and utility functions so you don't have to repeat yourself.
-					--
-					-- In this case, we create a function that lets us more easily define mappings specific
-					-- for LSP related items. It sets the mode, buffer and description for us each time.
-					local map = function(keys, func, desc, mode)
-						mode = mode or "n"
-						vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
-					end
-
-					-- Jump to the definition of the word under your cursor.
-					--  This is where a variable was first declared, or where a function is defined, etc.
-					--  To jump back, press <C-t>.
-					map("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
-
-					-- Find references for the word under your cursor.
-					map("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
-
-					-- Jump to the implementation of the word under your cursor.
-					--  Useful when your language has ways of declaring types without an actual implementation.
-					map("gI", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
-
-					-- Jump to the type of the word under your cursor.
-					--  Useful when you're not sure what type a variable is and you want to see
-					--  the definition of its *type*, not where it was *defined*.
-					map("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
-
-					-- Fuzzy find all the symbols in your current document.
-					--  Symbols are things like variables, functions, types, etc.
-					map("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
-
-					-- Fuzzy find all the symbols in your current workspace.
-					--  Similar to document symbols, except searches over your entire project.
-					map(
-						"<leader>ws",
-						require("telescope.builtin").lsp_dynamic_workspace_symbols,
-						"[W]orkspace [S]ymbols"
-					)
-
-					-- Rename the variable under your cursor.
-					--  Most Language Servers support renaming across files, etc.
-					map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
-
-					-- Execute a code action, usually your cursor needs to be on top of an error
-					-- or a suggestion from your LSP for this to activate.
-					map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction", { "n", "x" })
-
-					-- WARN: This is not Goto Definition, this is Goto Declaration.
-					--  For example, in C this would take you to the header.
-					map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-
-					-- Help with function signatures
-					map("gs", vim.lsp.buf.signature_help, "[G]oto [S]ignature")
-
-					-- The following two autocommands are used to highlight references of the
-					-- word under your cursor when your cursor rests there for a little while.
-					--    See `:help CursorHold` for information about when this is executed
-					--
-					-- When you move your cursor, the highlights will be cleared (the second autocommand).
-					local client = vim.lsp.get_client_by_id(event.data.client_id)
-
-					--[[
-					if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
-						local highlight_augroup =
-							vim.api.nvim_create_augroup("kickstart-lsp-highlight", { clear = false })
-						vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-							buffer = event.buf,
-							group = highlight_augroup,
-							callback = vim.lsp.buf.document_highlight,
-						})
-
-						vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-							buffer = event.buf,
-							group = highlight_augroup,
-							callback = vim.lsp.buf.clear_references,
-						})
-
-						vim.api.nvim_create_autocmd("LspDetach", {
-							group = vim.api.nvim_create_augroup("kickstart-lsp-detach", { clear = true }),
-							callback = function(event2)
-								vim.lsp.buf.clear_references()
-								vim.api.nvim_clear_autocmds({
-									group = "kickstart-lsp-highlight",
-									buffer = event2.buf,
-								})
-							end,
-						})
-					end
-					--]]
-
-					-- The following code creates a keymap to toggle inlay hints in your
-					-- code, if the language server you are using supports them
-					--
-					-- This may be unwanted, since they displace some of your code
-
-					if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
-						map("<leader>th", function()
-							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({
-								bufnr = event.buf,
-							}))
-						end, "[T]oggle Inlay [H]ints")
-					end
-				end,
-			})
-
 			-- LSP servers and clients are able to communicate to each other what features they support.
 			--  By default, Neovim doesn't support everything that is in the LSP specification.
 			--  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
@@ -184,8 +86,62 @@ return {
 			--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 
 			local servers = {
-				clangd = {},
+
+				--[[
+				ast_grep = {},
+
+				clangd = {
+					capabilities = capabilities,
+					cmd = { vim.fn.stdpath("data") .. "/mason/bin/clangd", compiler and "--query-driver=" .. compiler },
+					filetypes = { "c", "cpp", "h", "hpp", "inl", "objc", "objcpp", "cuda", "proto" },
+				},
+
+				pyright = {},
+
+				rust_analyzer = {},
+
+				... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
+
+				Some languages (like typescript) have entire language plugins that can be useful:
+				https://github.com/pmizio/typescript-tools.nvim
+				But for many setups, the LSP (`tsserver`) will work just fine:
+
+				tsserver = {},
+
+				--]]
+
+				harper_ls = {
+					settings = {
+						["harper-ls"] = {
+							userDictPath = "~/AppData/Roaming/harper-ls/dict.txt",
+							linters = {
+								spell_check = true,
+								spelled_numbers = false,
+								an_a = true,
+								sentence_capitalization = false,
+								unclosed_quotes = true,
+								wrong_quotes = false,
+								long_sentences = true,
+								repeated_words = true,
+								spaces = true,
+								matcher = true,
+								correct_number_suffix = true,
+								number_suffix_capitalization = true,
+								multiple_sequential_pronouns = true,
+								linking_verbs = false,
+								avoid_curses = false,
+							},
+							diagnosticSeverity = "hint", -- Can be "hint", "information", "warning", or "error"
+							codeActions = {
+								forceStable = true,
+							},
+						},
+					},
+				},
+
 				gopls = {
+					filetypes = { "go", "gomod", "gowork", "gotmpl" },
+					root_dir = require("lspconfig/util").root_pattern("go.work", "go.mod", ".git"),
 					settings = {
 						gopls = {
 							gofumpt = false,
@@ -230,33 +186,27 @@ return {
 						},
 					},
 				},
-				jdtls = {},
-				markdown_oxide = {
 
-					require("lspconfig").markdown_oxide.setup({
-						-- Ensure that dynamicRegistration is enabled! This allows the LS to take into account actions like the
-						-- Create Unresolved File code action, resolving completions for unindexed code blocks, ...
-						capabilities = vim.tbl_deep_extend("force", capabilities, {
-							workspace = {
-								didChangeWatchedFiles = {
-									dynamicRegistration = true,
-								},
-							},
-						}),
-						-- on_attach = on_attach -- configure your on attach config
-					}),
+				templ = {},
+
+				html = {
+					filetypes = { "html", "templ" },
 				},
 
-				-- pyright = {},
-				-- rust_analyzer = {},
-				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-				--
-				-- Some languages (like typescript) have entire language plugins that can be useful:
-				--    https://github.com/pmizio/typescript-tools.nvim
-				--
-				-- But for many setups, the LSP (`tsserver`) will work just fine
-				-- tsserver = {},
-				--
+				jdtls = {},
+
+				markdown_oxide = {
+
+					-- Ensure that dynamicRegistration is enabled! This allows the LS to take into account actions like the
+					-- Create Unresolved File code action, resolving completions for unindexed code blocks, ...
+					capabilities = vim.tbl_deep_extend("force", capabilities, {
+						workspace = {
+							didChangeWatchedFiles = {
+								dynamicRegistration = true,
+							},
+						},
+					}),
+				},
 
 				lua_ls = {
 					-- cmd = {...},
@@ -359,7 +309,7 @@ return {
 			end,
 			formatters_by_ft = {
 				lua = { "stylua" },
-				go = { "gofmt" },
+				-- go = { "gofmt" },
 				-- Conform can also run multiple formatters sequentially
 				-- python = { "isort", "black" },
 				--
@@ -518,7 +468,7 @@ return {
 							fallback()
 						end
 					end, { "i", "s" }),
-                    --]]
+					--]]
 				}),
 			})
 		end,

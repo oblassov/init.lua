@@ -7,7 +7,7 @@ vim.opt.relativenumber = true
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
-vim.opt.expandtab = true
+-- vim.opt.expandtab = true
 
 vim.opt.smartindent = true
 vim.opt.breakindent = true
@@ -33,18 +33,22 @@ vim.opt.timeoutlen = 300
 vim.opt.signcolumn = "yes"
 vim.opt.colorcolumn = "82"
 
-vim.o.keywordprg = ":help"
-
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.g.have_nerd_font = true
 
+vim.o.keywordprg = ":help"
+
+vim.o.shell = "pwsh"
+vim.o.shellcmdflag = "-nologo -noprofile -ExecutionPolicy RemoteSigned -command"
+vim.o.shellxquote = ""
+
 vim.opt.list = true
 vim.opt.listchars:append({
-	multispace = "   .",
+	multispace = " . .",
 	tab = "· ",
-	lead = "·",
-	leadmultispace = "·   ",
+	lead = ".",
+	leadmultispace = ". . ",
 	trail = "~",
 	extends = ">",
 	precedes = "<",

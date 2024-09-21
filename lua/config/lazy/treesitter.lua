@@ -3,7 +3,7 @@ return {
 	build = ":TSUpdate",
 	config = function()
 		require("nvim-treesitter.install").prefer_git = false
-		require("nvim-treesitter.install").compilers = { "clang", "gcc" }
+		require("nvim-treesitter.install").compilers = { "clang" }
 
 		require("nvim-treesitter.configs").setup({
 
@@ -12,9 +12,11 @@ return {
 				"c",
 				"cpp",
 				"go",
+				"templ",
 				"rust",
 				"java",
 				"json",
+				"jsdoc",
 				"lua",
 				"vim",
 				"vimdoc",
@@ -31,7 +33,7 @@ return {
 			sync_install = false,
 
 			-- Automatically install missing parsers when entering buffer
-			-- Recommendation: set to false if you don"t have `tree-sitter` CLI installed locally
+			-- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
 			auto_install = true,
 
 			indent = { enable = true },
