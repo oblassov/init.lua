@@ -7,8 +7,9 @@ vim.opt.relativenumber = true
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
--- vim.opt.expandtab = true
+vim.opt.expandtab = false
 
+vim.opt.autoindent = true
 vim.opt.smartindent = true
 vim.opt.breakindent = true
 
@@ -37,6 +38,9 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 vim.g.have_nerd_font = true
 
+vim.g.netrw_browse_split = 0
+vim.g.netrw_winsize = 25
+
 vim.o.keywordprg = ":help"
 
 vim.o.shell = "pwsh"
@@ -54,3 +58,5 @@ vim.opt.listchars:append({
 	precedes = "<",
 	nbsp = "+",
 })
+
+vim.filetype.add({ extension = { templ = "templ" } })

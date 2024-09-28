@@ -7,7 +7,7 @@ return {
 	config = function()
 		local peek = require("peek")
 
-		-- default config:
+		-- Default config:
 		peek.setup({
 			auto_load = true, --whether to automatically load preview when
 			--entering another markdown buffer

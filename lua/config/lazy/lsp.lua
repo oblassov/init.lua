@@ -29,14 +29,14 @@ return {
 
 		config = function()
 			-- Passing some arguments for clangd to see standard libraries headers
-			--			local handle = io.popen("command -v ucrt64")
-			--			local compiler
-			--			if handle then
-			--				compiler = handle:read("*a"):sub(1, -2)
-			--				handle:close()
-			--			else
-			--				compiler = nil
-			--			end
+			--local handle = io.popen("command -v ucrt64")
+			--local compiler
+			--if handle then
+			--	compiler = handle:read("*a"):sub(1, -2)
+			--	handle:close()
+			--else
+			--	compiler = nil
+			--end
 
 			local sign = function(opts)
 				vim.fn.sign_define(opts.name, {
@@ -86,12 +86,19 @@ return {
 					--  To jump back, press "<C-t>".
 					map("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
 
-					-- Find references for the word under your cursor.
-					map("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
+					-- WARN: This is not Goto Definition, this is Goto Declaration.
+					--  For example, in C this would take you to the header.
+					map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
 
 					-- Jump to the implementation of the word under your cursor.
 					--  Useful when your language has ways of declaring types without an actual implementation.
 					map("gI", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
+
+					-- Help with function signatures
+					map("gs", vim.lsp.buf.signature_help, "[G]oto [S]ignature")
+
+					-- Find references for the word under your cursor.
+					map("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
 
 					-- Jump to the type of the word under your cursor.
 					--  Useful when you're not sure what type a variable is and you want to see
@@ -118,13 +125,6 @@ return {
 					-- or a suggestion from your LSP for this to activate.
 					map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction", { "n", "x" })
 
-					-- WARN: This is not Goto Definition, this is Goto Declaration.
-					--  For example, in C this would take you to the header.
-					map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-
-					-- Help with function signatures
-					map("gs", vim.lsp.buf.signature_help, "[G]oto [S]ignature")
-
 					-- The following two autocommands are used to highlight references of the
 					-- word under your cursor when your cursor rests there for a little while.
 					--    See `:help CursorHold` for information about when this is executed
@@ -132,32 +132,31 @@ return {
 					-- When you move your cursor, the highlights will be cleared (the second autocommand).
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
 
-					if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
-						local highlight_augroup =
-							vim.api.nvim_create_augroup("config-group-highlight", { clear = false })
-						vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-							buffer = event.buf,
-							group = highlight_augroup,
-							callback = vim.lsp.buf.document_highlight,
-						})
-
-						vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-							buffer = event.buf,
-							group = highlight_augroup,
-							callback = vim.lsp.buf.clear_references,
-						})
-
-						vim.api.nvim_create_autocmd("LspDetach", {
-							group = vim.api.nvim_create_augroup("config-group-detach", { clear = true }),
-							callback = function(event2)
-								vim.lsp.buf.clear_references()
-								vim.api.nvim_clear_autocmds({
-									group = "config-group-highlight",
-									buffer = event2.buf,
-								})
-							end,
-						})
-					end
+					--if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
+					--	local highlight_augroup = vim.api.nvim_create_augroup("config-group-highlight", { clear = false })
+					--	vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+					--		buffer = event.buf,
+					--		group = highlight_augroup,
+					--		callback = vim.lsp.buf.document_highlight,
+					--	})
+					--
+					--	vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+					--		buffer = event.buf,
+					--		group = highlight_augroup,
+					--		callback = vim.lsp.buf.clear_references,
+					--	})
+					--
+					--	vim.api.nvim_create_autocmd("LspDetach", {
+					--		group = vim.api.nvim_create_augroup("config-group-detach", { clear = true }),
+					--		callback = function(event2)
+					--			vim.lsp.buf.clear_references()
+					--			vim.api.nvim_clear_autocmds({
+					--				group = "config-group-highlight",
+					--				buffer = event2.buf,
+					--			})
+					--		end,
+					--	})
+					--end
 
 					-- The following code creates a keymap to toggle inlay hints in your
 					-- code, if the language server you are using supports them
@@ -193,28 +192,25 @@ return {
 
 			local servers = {
 
-				--[[
 				ast_grep = {},
 
-				clangd = {
-					capabilities = capabilities,
-					cmd = { vim.fn.stdpath("data") .. "/mason/bin/clangd", compiler and "--query-driver=" .. compiler },
-					filetypes = { "c", "cpp", "h", "hpp", "inl", "objc", "objcpp", "cuda", "proto" },
-				},
+				--clangd = {
+				--	capabilities = capabilities,
+				--	cmd = { vim.fn.stdpath("data") .. "/mason/bin/clangd", compiler and "--query-driver=" .. compiler },
+				--	filetypes = { "c", "cpp", "h", "hpp", "inl", "objc", "objcpp", "cuda", "proto" },
+				--},
 
-				pyright = {},
-
-				rust_analyzer = {},
-
-				... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-
-				Some languages (like typescript) have entire language plugins that can be useful:
-				https://github.com/pmizio/typescript-tools.nvim
-				But for many setups, the LSP (`tsserver`) will work just fine:
-
-				tsserver = {},
-
-				--]]
+				--pyright = {},
+				--
+				--rust_analyzer = {},
+				--
+				--... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
+				--
+				--Some languages (like typescript) have entire language plugins that can be useful:
+				--https://github.com/pmizio/typescript-tools.nvim
+				--But for many setups, the LSP (`tsserver`) will work just fine:
+				--
+				--tsserver = {},
 
 				harper_ls = {
 					settings = {
@@ -415,7 +411,7 @@ return {
 			end,
 			formatters_by_ft = {
 				lua = { "stylua" },
-				-- go = { "gofmt" },
+				go = { "gofmt" },
 				-- Conform can also run multiple formatters sequentially
 				-- python = { "isort", "black" },
 				--
@@ -432,6 +428,7 @@ return {
 			-- Snippet Engine & its associated nvim-cmp source
 			{
 				"L3MON4D3/LuaSnip",
+				version = "v2.*", -- Replace "<CurrentMajor>" by the latest released major (first number of latest release)
 				build = (function()
 					-- Build Step is needed for regex support in snippets.
 					-- This step is not supported in many windows environments.
@@ -472,6 +469,8 @@ return {
 		},
 
 		config = function()
+			vim.opt.completeopt = { "menu", "menuone", "noselect" }
+
 			local cmp = require("cmp")
 			local luasnip = require("luasnip")
 
@@ -479,31 +478,32 @@ return {
 
 			cmp.setup({
 
+				-- Enable luasnip to handle snippet expansion for nvim-cmp
+
 				snippet = {
 					expand = function(args)
 						luasnip.lsp_expand(args.body) -- For `luasnip` users.
 					end,
 				},
 
-				completion = { completeopt = "menu, menuone, noinsert" },
-
 				sources = {
-					{
-						name = "lazydev",
-						-- set group index to 0 to skip loading LuaLS completions as lazydev recommends it
-						group_index = 0,
-					},
 					{ name = "path" },
 					{
 						name = "nvim_lsp",
+						keyword_length = 1,
 						option = {
 							markdown_oxide = {
 								keyword_pattern = [[\(\k\| \|\/\|#\)\+]],
 							},
 						},
 					},
-					{ name = "buffer", keyword_length = 3 },
 					{ name = "luasnip", keyword_length = 2 },
+					{ name = "buffer", keyword_length = 3 },
+					{
+						name = "lazydev",
+						-- Set group index to 0 to skip loading LuaLS completions as lazydev recommends it
+						group_index = 0,
+					},
 				},
 
 				window = {
@@ -530,16 +530,21 @@ return {
 					["<C-p>"] = cmp.mapping.select_prev_item(cmp_select),
 					["<C-n>"] = cmp.mapping.select_next_item(cmp_select),
 					["<C-y>"] = cmp.mapping.confirm({ select = true }),
+					["<C-e>"] = cmp.mapping.abort(),
+
+					-- Scroll docs while selecting autocomplete entry not while hover
 					["<C-d>"] = cmp.mapping.scroll_docs(-4),
 					["<C-f>"] = cmp.mapping.scroll_docs(4),
-					["<C-Space>"] = cmp.mapping(
-						cmp.mapping.complete({
-							reason = cmp.ContextReason.Auto,
-						}),
-						{ "i", "c" }
-					),
 
-					["<C-l>"] = cmp.mapping(function(fallback)
+					-- Generally unneeded as nvim-cmp displays completions upon ready
+					--["<C-Space>"] = cmp.mapping(
+					--	cmp.mapping.complete({
+					--		reason = cmp.ContextReason.Auto, --or *.Manual
+					--	}),
+					--	{ "i", "c" }
+					--),
+
+					["<C-j>"] = cmp.mapping(function(fallback)
 						if luasnip.expand_or_locally_jumpable(1) then
 							luasnip.expand_or_jump(1)
 						else
@@ -547,7 +552,7 @@ return {
 						end
 					end, { "i", "s" }),
 
-					["<C-h>"] = cmp.mapping(function(fallback)
+					["<C-k>"] = cmp.mapping(function(fallback)
 						if luasnip.locally_jumpable(-1) then
 							luasnip.jump(-1)
 						else
@@ -555,26 +560,34 @@ return {
 						end
 					end, { "i", "s" }),
 
-					--[[
-					["<Tab>"] = cmp.mapping(function(fallback)
-						local col = vim.fn.col(".") - 1
-						if cmp.visible() then
-							cmp.select_next_item(cmp_select)
-						elseif col == 0 or vim.fn.getline("."):sub(col, col):match("%s") then
-							fallback()
+					["<C-l>"] = cmp.mapping(function(fallback)
+						if luasnip.choice_active() then
+							luasnip.change_choice(1)
 						else
-							cmp.complete()
+							fallback()
 						end
-					end, { "i", "s" }),
+					end, { "i" }),
 
-					["<S-Tab>"] = cmp.mapping(function(fallback)
-						if cmp.visible() then
-							cmp.select_prev_item(cmp_select)
-						else
-							fallback()
-						end
-					end, { "i", "s" }),
-					--]]
+					-- Config for tab navigation for those who prefer that
+
+					--["<Tab>"] = cmp.mapping(function(fallback)
+					--	local col = vim.fn.col(".") - 1
+					--	if cmp.visible() then
+					--		cmp.select_next_item(cmp_select)
+					--	elseif col == 0 or vim.fn.getline("."):sub(col, col):match("%s") then
+					--		fallback()
+					--	else
+					--		cmp.complete()
+					--	end
+					--end, { "i", "s" }),
+					--
+					--["<S-Tab>"] = cmp.mapping(function(fallback)
+					--	if cmp.visible() then
+					--		cmp.select_prev_item(cmp_select)
+					--	else
+					--		fallback()
+					--	end
+					--end, { "i", "s" }),
 				}),
 			})
 		end,

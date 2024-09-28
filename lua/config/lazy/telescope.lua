@@ -26,7 +26,7 @@ return {
 		local harpoon = require("harpoon")
 		harpoon:setup({})
 
-		-- basic telescope configuration
+		-- Basic telescope configuration
 		local conf = require("telescope.config").values
 		local function toggle_telescope(harpoon_files)
 			local file_paths = {}
