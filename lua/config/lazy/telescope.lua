@@ -10,7 +10,16 @@ return {
 
 		local builtin = require("telescope.builtin")
 		vim.keymap.set("n", "<leader>pf", builtin.find_files, {})
-		vim.keymap.set("n", "<C-p>", builtin.git_files, {})
+		vim.keymap.set("n", "<C-p>", function()
+			local path = vim.fn.expand("%:p:h") -- returns a current directory or filepath
+			local is_git = os.execute("git -C " .. path .. " rev-parse --is-inside-work-tree") == 0
+
+			if is_git then
+				builtin.git_files({ cwd = path }, { use_git_root = true })
+			else
+				builtin.find_files()
+			end
+		end, { desc = "Open git files if inside a repo" })
 		vim.keymap.set("n", "<leader>ps", function()
 			builtin.grep_string({ search = vim.fn.input("Grep > ") })
 		end)
