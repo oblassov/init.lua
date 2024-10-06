@@ -225,7 +225,7 @@ return {
 								wrong_quotes = false,
 								long_sentences = true,
 								repeated_words = true,
-								spaces = true,
+								spaces = false,
 								matcher = true,
 								correct_number_suffix = true,
 								number_suffix_capitalization = true,

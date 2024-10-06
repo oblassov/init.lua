@@ -49,10 +49,10 @@ vim.o.shellxquote = ""
 
 vim.opt.list = true
 vim.opt.listchars:append({
-	multispace = " . .",
+	multispace = " .",
 	tab = "· ",
 	lead = ".",
-	leadmultispace = ". . ",
+	leadmultispace = ". ",
 	trail = "~",
 	extends = ">",
 	precedes = "<",
