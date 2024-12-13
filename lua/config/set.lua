@@ -1,6 +1,13 @@
 vim.opt.guicursor = ""
 --vim.opt.cursorline = true
 
+-- Set the default file format to Unix
+vim.opt.fileformat = "unix"
+vim.opt.encoding = "utf-8"
+vim.opt.fileencoding = "utf-8"
+
+vim.opt.title = true
+
 vim.opt.nu = true
 vim.opt.relativenumber = true
 
@@ -25,14 +32,14 @@ vim.opt.incsearch = true
 
 vim.opt.termguicolors = true
 
-vim.opt.scrolloff = 9
+vim.opt.scrolloff = 8
 vim.opt.isfname:append("@-@")
 
 vim.opt.updatetime = 50
 vim.opt.timeoutlen = 300
 
 vim.opt.signcolumn = "yes"
-vim.opt.colorcolumn = "82"
+vim.opt.colorcolumn = "81"
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "

@@ -25,6 +25,7 @@ return {
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
 			{ "j-hui/fidget.nvim", opts = {} },
 			"hrsh7th/cmp-nvim-lsp",
+			-- { "chrisgrieser/nvim-lsp-endhints", event = "LspAttach", opts = {} },
 		},
 
 		config = function()
@@ -67,6 +68,26 @@ return {
 					source = "if_many",
 				},
 			})
+
+			-- -- configures "lsp-endhints"
+			-- require("lsp-endhints").setup({
+			-- 	icons = {
+			-- 		type = "󰜁 ",
+			-- 		parameter = "󰏪 ",
+			-- 		offspec = " ", -- hint kind not defined in official LSP spec
+			-- 		unknown = " ", -- hint kind is nil
+			-- 	},
+			-- 	label = {
+			-- 		truncateAtChars = 20,
+			-- 		padding = 1,
+			-- 		marginLeft = 0,
+			-- 		sameKindSeparator = ", ",
+			-- 	},
+			-- 	extmark = {
+			-- 		priority = 50,
+			-- 	},
+			-- 	autoEnableHints = true,
+			-- })
 
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("config-group-attach", { clear = true }),
@@ -165,6 +186,8 @@ return {
 
 					if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
 						map("<leader>th", function()
+							-- toggles between inlay and end of line hints
+							-- require("lsp-endhints").toggle()
 							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({
 								bufnr = event.buf,
 							}))
@@ -212,35 +235,6 @@ return {
 				--
 				--tsserver = {},
 
-				harper_ls = {
-					settings = {
-						["harper-ls"] = {
-							userDictPath = "~/AppData/Roaming/harper-ls/dict.txt",
-							linters = {
-								spell_check = true,
-								spelled_numbers = false,
-								an_a = true,
-								sentence_capitalization = false,
-								unclosed_quotes = true,
-								wrong_quotes = false,
-								long_sentences = true,
-								repeated_words = true,
-								spaces = false,
-								matcher = true,
-								correct_number_suffix = true,
-								number_suffix_capitalization = true,
-								multiple_sequential_pronouns = true,
-								linking_verbs = false,
-								avoid_curses = false,
-							},
-							diagnosticSeverity = "hint", -- Can be "hint", "information", "warning", or "error"
-							codeActions = {
-								forceStable = true,
-							},
-						},
-					},
-				},
-
 				gopls = {
 					filetypes = { "go", "gomod", "gowork", "gotmpl" },
 					root_dir = require("lspconfig/util").root_pattern("go.work", "go.mod", ".git"),
@@ -248,7 +242,7 @@ return {
 						gopls = {
 							gofumpt = false,
 							codelenses = {
-								gc_details = false,
+								gc_details = true,
 								generate = true,
 								regenerate_cgo = true,
 								run_govulncheck = true,
@@ -267,7 +261,6 @@ return {
 								rangeVariableTypes = true,
 							},
 							analyses = {
-								fieldalignment = true,
 								nilness = true,
 								unusedparams = true,
 								unusedwrite = true,
@@ -289,11 +282,40 @@ return {
 					},
 				},
 
-				templ = {},
+				harper_ls = {
+					settings = {
+						["harper-ls"] = {
+							userDictPath = "~/AppData/Roaming/harper-ls/dict.txt",
+							linters = {
+								spell_check = true,
+								spelled_numbers = false,
+								an_a = true,
+								sentence_capitalization = false,
+								unclosed_quotes = true,
+								wrong_quotes = false,
+								long_sentences = true,
+								repeated_words = false,
+								spaces = false,
+								matcher = true,
+								correct_number_suffix = true,
+								number_suffix_capitalization = true,
+								multiple_sequential_pronouns = true,
+								linking_verbs = false,
+								avoid_curses = false,
+							},
+							diagnosticSeverity = "hint", -- Can be "hint", "information", "warning", or "error"
+							codeActions = {
+								forceStable = true,
+							},
+						},
+					},
+				},
 
 				html = {
 					filetypes = { "html", "templ" },
 				},
+
+				templ = {},
 
 				jdtls = {},
 
@@ -358,6 +380,7 @@ return {
 
 			vim.list_extend(ensure_installed, {
 				"stylua", -- Used to format Lua code
+				"golangci-lint",
 			})
 
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })

@@ -38,7 +38,7 @@ return {
 
 			indent = {
 				enable = true,
-				disable = { "yaml", "go" },
+				disable = { "yaml" },
 			},
 
 			highlight = {
