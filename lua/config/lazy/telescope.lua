@@ -5,17 +5,28 @@ return {
 	-- branch = '0.1.x',
 	dependencies = {
 		"nvim-lua/plenary.nvim",
-		{
-			"nvim-telescope/telescope-fzf-native.nvim",
-			build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release",
-		},
+		{ "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
 	},
 
 	config = function()
-		require("telescope").setup({})
+		require("telescope").setup({
+			defaults = require("telescope.themes").get_ivy(),
+			extensions = {
+				fzf = {},
+			},
+		})
 
 		local builtin = require("telescope.builtin")
-		vim.keymap.set("n", "<leader>pf", builtin.find_files, {})
+		require("telescope").load_extension("fzf")
+		require("config.local.telescope.multigrep").setup()
+
+		-- Primeagen style grep
+		-- vim.keymap.set("n", "<leader>ps", function()
+		-- 	builtin.grep_string({ search = vim.fn.input("Grep > ") })
+		-- end)
+
+		vim.keymap.set("n", "<leader>pf", builtin.find_files)
+
 		vim.keymap.set("n", "<C-p>", function()
 			local path = vim.fn.expand("%:p:h") -- returns a current directory or filepath
 			local is_git = os.execute("git -C " .. path .. " rev-parse --is-inside-work-tree") == 0
@@ -26,25 +37,38 @@ return {
 				builtin.find_files()
 			end
 		end, { desc = "Open git files if inside a repo" })
-		vim.keymap.set("n", "<leader>ps", function()
-			builtin.grep_string({ search = vim.fn.input("Grep > ") })
-		end)
+
 		vim.keymap.set("n", "<leader>pws", function()
 			local word = vim.fn.expand("<cword>")
 			builtin.grep_string({ search = word })
 		end)
+
 		vim.keymap.set("n", "<leader>pWs", function()
 			local word = vim.fn.expand("<cWORD>")
 			builtin.grep_string({ search = word })
 		end)
 
+		vim.keymap.set("n", "<leader>fh", builtin.help_tags)
+
+		vim.keymap.set("n", "<leader>fn", function()
+			---@diagnostic disable-next-line: param-type-mismatch
+			builtin.find_files({ cwd = vim.fs.joinpath(vim.fn.stdpath("data"), "lazy") })
+		end)
+
+		vim.keymap.set("n", "<leader>cn", function()
+			builtin.find_files({
+				cwd = vim.fn.stdpath("config"),
+			})
+		end)
+
+		-- Basic Harpoon configuration
 		local harpoon = require("harpoon")
 		harpoon:setup({})
 
-		-- Basic telescope configuration
 		local conf = require("telescope.config").values
 		local function toggle_telescope(harpoon_files)
 			local file_paths = {}
+
 			for _, item in ipairs(harpoon_files.items) do
 				table.insert(file_paths, item.value)
 			end

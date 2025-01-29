@@ -25,7 +25,6 @@ return {
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
 			{ "j-hui/fidget.nvim", opts = {} },
 			"hrsh7th/cmp-nvim-lsp",
-			-- { "chrisgrieser/nvim-lsp-endhints", event = "LspAttach", opts = {} },
 		},
 
 		config = function()
@@ -68,26 +67,6 @@ return {
 					source = "if_many",
 				},
 			})
-
-			-- -- configures "lsp-endhints"
-			-- require("lsp-endhints").setup({
-			-- 	icons = {
-			-- 		type = "󰜁 ",
-			-- 		parameter = "󰏪 ",
-			-- 		offspec = " ", -- hint kind not defined in official LSP spec
-			-- 		unknown = " ", -- hint kind is nil
-			-- 	},
-			-- 	label = {
-			-- 		truncateAtChars = 20,
-			-- 		padding = 1,
-			-- 		marginLeft = 0,
-			-- 		sameKindSeparator = ", ",
-			-- 	},
-			-- 	extmark = {
-			-- 		priority = 50,
-			-- 	},
-			-- 	autoEnableHints = true,
-			-- })
 
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("config-group-attach", { clear = true }),
@@ -146,13 +125,14 @@ return {
 					-- or a suggestion from your LSP for this to activate.
 					map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction", { "n", "x" })
 
+					local client = vim.lsp.get_client_by_id(event.data.client_id)
+
 					-- The following two autocommands are used to highlight references of the
 					-- word under your cursor when your cursor rests there for a little while.
 					--    See `:help CursorHold` for information about when this is executed
 					--
 					-- When you move your cursor, the highlights will be cleared (the second autocommand).
-					local client = vim.lsp.get_client_by_id(event.data.client_id)
-
+					--
 					--if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
 					--	local highlight_augroup = vim.api.nvim_create_augroup("config-group-highlight", { clear = false })
 					--	vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
@@ -186,8 +166,6 @@ return {
 
 					if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
 						map("<leader>th", function()
-							-- toggles between inlay and end of line hints
-							-- require("lsp-endhints").toggle()
 							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({
 								bufnr = event.buf,
 							}))
@@ -353,6 +331,14 @@ return {
 									"after_each",
 								},
 							},
+							hint = {
+								enable = true,
+								setType = false,
+								paramType = true,
+								paramName = "Disable",
+								semicolon = "Disable",
+								arrayIndex = "Disable",
+							},
 						},
 					},
 				},
@@ -364,6 +350,8 @@ return {
 			--    :Mason
 			--
 			--  You can press `g?` for help in this menu.
+
+			---@diagnostic disable-next-line: missing-fields
 			require("mason").setup({
 				ui = {
 					icons = {
@@ -380,11 +368,12 @@ return {
 
 			vim.list_extend(ensure_installed, {
 				"stylua", -- Used to format Lua code
-				"golangci-lint",
+				"golangci-lint", -- Golang Linters
 			})
 
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
+			---@diagnostic disable-next-line: missing-fields
 			require("mason-lspconfig").setup({
 				handlers = {
 					function(server_name)

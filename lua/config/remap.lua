@@ -35,5 +35,8 @@ vim.keymap.set("n", "<C-c>", "<C-[>")
 vim.keymap.set("n", "<C-j>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 
---Increment a number
+-- Increment a number
 vim.keymap.set("n", "<C-z>", "<C-a>")
+
+-- Simpler terminal exit
+vim.keymap.set("t", "<esc><esc>", "<c-\\><c-n>")
