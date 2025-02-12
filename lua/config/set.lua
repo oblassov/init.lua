@@ -2,6 +2,7 @@ vim.opt.guicursor = ""
 --vim.opt.cursorline = true
 
 -- Set the default file format to Unix
+-- It fixes the messing up files in Windows, yeah I know, it is annoying
 -- vim.opt.fileformat = "unix"
 -- vim.opt.encoding = "utf-8"
 -- vim.opt.fileencoding = "utf-8"
@@ -54,7 +55,7 @@ vim.o.keywordprg = ":help"
 vim.o.shell = "zsh"
 -- Powershell policies
 -- vim.o.shellcmdflag = "-nologo -noprofile -ExecutionPolicy RemoteSigned -command"
-vim.o.shellxquote = ""
+-- vim.o.shellxquote = ""
 
 vim.api.nvim_create_autocmd("TermOpen", {
 	group = vim.api.nvim_create_augroup("custom_term_open", { clear = true }),

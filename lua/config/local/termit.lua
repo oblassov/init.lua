@@ -10,6 +10,8 @@ local state = {
 local function create_floating_window(opts)
 	opts = opts or {}
 
+	vim.cmd("cd %:p:h") --Sets current directory for a buffer
+
 	-- Calculate the width and height of the window
 	local width = opts.width or math.floor(vim.o.columns * 0.95)
 	local height = opts.height or math.floor((vim.o.lines - 2) * 0.9)
@@ -114,6 +116,8 @@ end
 local function create_side_window(opts)
 	opts = opts or {}
 
+	vim.cmd("cd %:p:h") --Sets current directory for a buffer
+
 	-- If the width is bigger than the window or too small use fixed sizes
 	local w = math.min(math.max((opts.width or 0.34), 0.2), 0.5)
 
@@ -196,7 +200,7 @@ function M.setup(opts)
 
 	local keymaps = vim.tbl_deep_extend("force", {
 		toggle_terminal = "<C-\\>",
-		toggle_floating_cliapp = "<leader>lg",
+		toggle_floating_cliapp = "<C-G>",
 		hide_terminal = "<C-]>",
 	}, opts.keymaps or {})
 

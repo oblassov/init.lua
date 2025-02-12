@@ -28,16 +28,6 @@ return {
 		},
 
 		config = function()
-			-- Passing some arguments for clangd to see standard libraries headers
-			--local handle = io.popen("command -v ucrt64")
-			--local compiler
-			--if handle then
-			--	compiler = handle:read("*a"):sub(1, -2)
-			--	handle:close()
-			--else
-			--	compiler = nil
-			--end
-
 			local sign = function(opts)
 				vim.fn.sign_define(opts.name, {
 					texthl = opts.name,
@@ -256,35 +246,6 @@ return {
 								"-.nvim",
 							},
 							semanticTokens = true,
-						},
-					},
-				},
-
-				harper_ls = {
-					settings = {
-						["harper-ls"] = {
-							userDictPath = "~/AppData/Roaming/harper-ls/dict.txt",
-							linters = {
-								spell_check = true,
-								spelled_numbers = false,
-								an_a = true,
-								sentence_capitalization = false,
-								unclosed_quotes = true,
-								wrong_quotes = false,
-								long_sentences = true,
-								repeated_words = false,
-								spaces = false,
-								matcher = true,
-								correct_number_suffix = true,
-								number_suffix_capitalization = true,
-								multiple_sequential_pronouns = true,
-								linking_verbs = false,
-								avoid_curses = false,
-							},
-							diagnosticSeverity = "hint", -- Can be "hint", "information", "warning", or "error"
-							codeActions = {
-								forceStable = true,
-							},
 						},
 					},
 				},

@@ -9,3 +9,4 @@ Personal setup that works on any system (Unix users need to comment out a line i
 - [Vimbegood](https://github.com/theprimeagen/vim-be-good) for some vim motions practice
 - Remaps are kept simple and as close to defaults as possible. [remaps.lua](lua/config/remaps.lua) is for general remaps and plugin specific remaps are kept within plugin setup files
 - Heavily inspired by [theprimeagen](https://github.com/nvim-lua/init.lua) and [kickstart](https://github.com/nvim-lua/kickstart.nvim/) setups
+- Contains an WIP version of termit plugin for split terminal window that keeps state

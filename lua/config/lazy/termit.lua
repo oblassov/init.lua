@@ -8,7 +8,7 @@ return {
 		},
 		floating = {
 			width = 0.95,
-			height = 1,
+			height = 0.95,
 			cliapp = "lazygit",
 			border = "rounded",
 		},
