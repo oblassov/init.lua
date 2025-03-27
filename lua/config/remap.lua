@@ -1,4 +1,4 @@
---Entering explorer under current file,
+-- Entering explorer under current file,
 -- returning to the last explorer location or getting back to file
 vim.keymap.set("n", "<leader>pe", vim.cmd.Ex)
 vim.keymap.set("n", "<leader>pr", vim.cmd.Rexplore)
@@ -29,7 +29,7 @@ vim.keymap.set("n", "<leader>Y", '"+Y')
 vim.keymap.set("n", "<leader>d", '"_d')
 vim.keymap.set("v", "<leader>d", '"_d')
 
-vim.keymap.set("n", "<C-c>", "<C-[>")
+-- vim.keymap.set("n", "<C-c>", "<C-[>")
 
 -- Scroll half a screen up / down
 vim.keymap.set("n", "<C-j>", "<C-d>zz")

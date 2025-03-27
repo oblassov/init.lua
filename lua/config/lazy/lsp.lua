@@ -183,14 +183,6 @@ return {
 
 			local servers = {
 
-				ast_grep = {},
-
-				--clangd = {
-				--	capabilities = capabilities,
-				--	cmd = { vim.fn.stdpath("data") .. "/mason/bin/clangd", compiler and "--query-driver=" .. compiler },
-				--	filetypes = { "c", "cpp", "h", "hpp", "inl", "objc", "objcpp", "cuda", "proto" },
-				--},
-
 				--pyright = {},
 				--
 				--rust_analyzer = {},
@@ -250,13 +242,85 @@ return {
 					},
 				},
 
+				golangci_lint_ls = {
+					cmd = { "golangci-lint-langserver" },
+					filetypes = { "go" },
+					init_options = {
+						command = {
+							"golangci-lint",
+							"run",
+							"--output.json.path",
+							"stdout",
+							"--show-stats=false",
+							"--issues-exit-code=1",
+						},
+					},
+
+					root_dir = function(fname)
+						return require("lspconfig/util").root_pattern(
+							".golangci.yml",
+							".golangci.yaml",
+							".golangci.toml",
+							".golangci.json",
+							"go.mod",
+							"go.work",
+							".git"
+						)(fname)
+					end,
+
+					on_new_config = function(new_config, root_dir)
+						local global_config_path = os.getenv("HOME") .. "/.config/golangci-lint/.golangci.yml"
+						local project_config_paths = {
+							root_dir .. "/.golangci.yml",
+							root_dir .. "/.golangci.yaml",
+							root_dir .. "/.golangci.toml",
+							root_dir .. "/.golangci.json",
+						}
+
+						-- Check for project-specific configs
+						for _, config_path in ipairs(project_config_paths) do
+							if vim.fn.filereadable(config_path) == 1 then
+								new_config.init_options.command = {
+									"golangci-lint",
+									"run",
+									"--output.json.path",
+									"stdout",
+									"--show-stats=false",
+									"--issues-exit-code=1",
+									"--config",
+									config_path,
+								}
+								print("golangci_lint_ls: using project config at " .. config_path)
+								return
+							end
+						end
+
+						-- If no project config, check for global config
+						if vim.fn.filereadable(global_config_path) == 1 then
+							new_config.init_options.command = {
+								"golangci-lint",
+								"run",
+								"--output.json.path",
+								"stdout",
+								"--show-stats=false",
+								"--issues-exit-code=1",
+								"--config",
+								global_config_path,
+							}
+							print("golangci_lint_ls: using global config at " .. global_config_path)
+							return
+						end
+
+						-- Fallback to default settings
+						print("golangci_lint_ls: using default config")
+					end,
+				},
+
 				html = {
 					filetypes = { "html", "templ" },
 				},
 
 				templ = {},
-
-				jdtls = {},
 
 				markdown_oxide = {
 
@@ -270,6 +334,8 @@ return {
 						},
 					}),
 				},
+
+				stylua = {}, -- Used to format Lua code
 
 				lua_ls = {
 					-- cmd = {...},
@@ -328,8 +394,7 @@ return {
 			local ensure_installed = vim.tbl_keys(servers or {})
 
 			vim.list_extend(ensure_installed, {
-				"stylua", -- Used to format Lua code
-				"golangci-lint", -- Golang Linters
+				-- "golangci-lint", -- Golang Linters
 			})
 
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })

@@ -69,10 +69,10 @@ vim.api.nvim_create_autocmd("TermOpen", {
 
 vim.opt.list = true
 vim.opt.listchars:append({
-	multispace = " .",
-	tab = "· ",
-	lead = ".",
-	leadmultispace = ". ",
+	multispace = ". ",
+	tab = "┊ ",
+	lead = "·",
+	leadmultispace = "· ",
 	trail = "~",
 	extends = ">",
 	precedes = "<",
