@@ -20,11 +20,6 @@ return {
 		require("telescope").load_extension("fzf")
 		require("config.local.telescope.multigrep").setup()
 
-		-- Primeagen style grep
-		-- vim.keymap.set("n", "<leader>ps", function()
-		-- 	builtin.grep_string({ search = vim.fn.input("Grep > ") })
-		-- end)
-
 		vim.keymap.set("n", "<leader>pf", builtin.find_files)
 
 		vim.keymap.set("n", "<C-p>", function()

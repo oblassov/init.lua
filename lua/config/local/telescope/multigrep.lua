@@ -2,7 +2,6 @@ local pickers = require("telescope.pickers")
 local finders = require("telescope.finders")
 local make_entry = require("telescope.make_entry")
 local conf = require("telescope.config").values
-local sorters = require("telescope.sorters")
 
 local M = {}
 
@@ -58,7 +57,7 @@ local live_multigrep = function(opts)
 			prompt_title = "Multi Grep",
 			finder = finder,
 			previewer = conf.grep_previewer(opts),
-			sorter = sorters.empty(),
+			sorter = require("telescope.sorters").get_fuzzy_file(),
 		})
 		:find()
 end

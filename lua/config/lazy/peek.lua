@@ -1,12 +1,17 @@
 return {
 	"toppair/peek.nvim",
+
 	event = { "VeryLazy" },
 	build = "deno task --quiet build:fast",
+
 	config = function()
-		-- default config:
-		require("peek").setup({
-			auto_load = true, -- whether to automatically load preview when
-			-- entering another markdown buffer
+		local peek = require("peek")
+
+		-- Default config:
+
+		peek.setup({
+			auto_load = true, --whether to automatically load preview when
+			--entering another markdown buffer
 			close_on_bdelete = true, -- close preview window on buffer delete
 
 			syntax = true, -- enable syntax highlighting, affects performance
@@ -21,14 +26,25 @@ return {
 			filetype = { "markdown" }, -- list of filetypes to recognize as markdown
 
 			-- relevant if update_on_change is true
+
 			throttle_at = 200000, -- start throttling when file exceeds this
 			-- amount of bytes in size
 			throttle_time = "auto", -- minimum amount of time in milliseconds
 			-- that has to pass before starting new render
 		})
-		vim.api.nvim_create_user_command("PeekOpen", require("peek").open, {})
-		vim.api.nvim_create_user_command("PeekClose", require("peek").close, {})
-		-- returning to the last explorer location or getting back to file
+
+		vim.api.nvim_create_user_command("PeekOpen", function()
+			if not peek.is_open() and vim.bo[vim.api.nvim_get_current_buf()].filetype == "markdown" then
+				peek.open()
+			end
+		end, {})
+
+		vim.api.nvim_create_user_command("PeekClose", function()
+			if peek.is_open() then
+				peek.close()
+			end
+		end, {})
+
 		vim.keymap.set("n", "<leader>po", require("peek").open)
 		vim.keymap.set("n", "<leader>pc", require("peek").close)
 	end,
