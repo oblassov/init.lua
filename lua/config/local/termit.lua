@@ -10,7 +10,7 @@ local state = {
 local function create_floating_window(opts)
 	opts = opts or {}
 
-	vim.cmd("cd %:p:h") --Sets current directory for a buffer
+	vim.cmd("cd %:p:h") -- Sets current directory for a buffer
 
 	-- Calculate the width and height of the window
 	local width = opts.width or math.floor(vim.o.columns * 0.95)
@@ -22,10 +22,13 @@ local function create_floating_window(opts)
 
 	-- Create or reuse buffer
 	local buf = nil
-	if vim.api.nvim_buf_is_valid(opts.buf) then
+	if opts.buf and vim.api.nvim_buf_is_valid(opts.buf) then
 		buf = opts.buf
 	else
 		buf = vim.api.nvim_create_buf(false, true)
+		vim.bo[buf].buftype = "nofile"
+		vim.bo[buf].bufhidden = "hide"
+		vim.bo[buf].swapfile = false
 	end
 
 	-- Create window with specific options
@@ -67,7 +70,9 @@ local function toggle_floating_cliapp(opts)
 		print("⚠️  Window is too small for floating cliapps!")
 		if vim.api.nvim_win_is_valid(state.terminal.win) then
 			vim.schedule(function()
-				vim.cmd("startinsert")
+				if vim.api.nvim_get_mode().mode ~= "i" then
+					vim.cmd("startinsert")
+				end
 			end)
 			state.terminal.win = -1
 		end
@@ -76,7 +81,9 @@ local function toggle_floating_cliapp(opts)
 
 	-- Exit terminal if we are in a terminal buffer
 	if vim.api.nvim_win_is_valid(state.terminal.win) then
-		vim.cmd("stopinsert")
+		if vim.api.nvim_get_mode().mode:sub(1, 1) == "i" then
+			vim.cmd("stopinsert")
+		end
 	end
 
 	-- Toggle floating window
@@ -96,7 +103,9 @@ local function toggle_floating_cliapp(opts)
 			end
 
 			vim.schedule(function()
-				vim.cmd("startinsert")
+				if vim.api.nvim_get_mode().mode ~= "i" then
+					vim.cmd("startinsert")
+				end
 			end)
 		end
 	else -- Hide the floating window
@@ -106,7 +115,9 @@ local function toggle_floating_cliapp(opts)
 		-- Check if the previous window was terminal
 		if vim.api.nvim_win_is_valid(state.terminal.win) then
 			vim.schedule(function()
-				vim.cmd("startinsert")
+				if vim.api.nvim_get_mode().mode ~= "i" then
+					vim.cmd("startinsert")
+				end
 			end)
 			state.terminal.win = -1
 		end
@@ -116,7 +127,7 @@ end
 local function create_side_window(opts)
 	opts = opts or {}
 
-	vim.cmd("cd %:p:h") --Sets current directory for a buffer
+	vim.cmd("cd %:p:h") -- Sets current directory for a buffer
 
 	-- If the width is bigger than the window or too small use fixed sizes
 	local w = math.min(math.max((opts.width or 0.34), 0.2), 0.5)
@@ -129,17 +140,20 @@ local function create_side_window(opts)
 
 	-- Create or reuse buffer
 	local buf = nil
-	if vim.api.nvim_buf_is_valid(opts.buf) then
+	if opts.buf and vim.api.nvim_buf_is_valid(opts.buf) then
 		buf = opts.buf
 	else
 		buf = vim.api.nvim_create_buf(false, true)
+		vim.bo[buf].buftype = "nofile"
+		vim.bo[buf].bufhidden = "hide"
+		vim.bo[buf].swapfile = false
 	end
 
 	-- If the window is too narrow choose horizontal split
 	if width > 59 then -- Vertical split
-		vim.cmd("leftabove" .. width .. "vsplit")
+		vim.cmd("leftabove " .. width .. "vsplit")
 	elseif height > 8 then -- Horizontal split
-		vim.cmd("belowright" .. height .. "split")
+		vim.cmd("belowright " .. height .. "split")
 	else
 		print("⚠️  Window is too small to split!")
 		return { win = -1, buf = -1 }
@@ -171,15 +185,23 @@ local function toggle_side_term(opts)
 		-- Check if window was created
 		if vim.api.nvim_win_is_valid(state.split_term.win) then
 			if vim.bo[state.split_term.buf].buftype ~= "terminal" then
-				vim.cmd.terminal()
+				vim.cmd.terminal(vim.o.shell)
 			end
-			vim.cmd("startinsert")
+			if vim.api.nvim_get_mode().mode ~= "i" then
+				vim.cmd("startinsert")
+			end
 		end
 	elseif win == state.split_term.win then
-		vim.api.nvim_set_current_win(state.original.win)
+		if vim.api.nvim_win_is_valid(state.original.win) then
+			vim.api.nvim_set_current_win(state.original.win)
+		end
 	elseif win == state.original.win then
-		vim.api.nvim_set_current_win(state.split_term.win)
-		vim.cmd("startinsert")
+		if vim.api.nvim_win_is_valid(state.split_term.win) then
+			vim.api.nvim_set_current_win(state.split_term.win)
+			if vim.api.nvim_get_mode().mode ~= "i" then
+				vim.cmd("startinsert")
+			end
+		end
 	end
 end
 

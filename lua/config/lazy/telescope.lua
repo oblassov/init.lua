@@ -23,12 +23,22 @@ return {
 		vim.keymap.set("n", "<leader>pf", builtin.find_files)
 
 		vim.keymap.set("n", "<C-p>", function()
-			local path = vim.fn.expand("%:p:h") -- returns a current directory or filepath
-			local is_git = os.execute("git -C " .. path .. " rev-parse --is-inside-work-tree") == 0
+			local path = vim.fn.expand("%:p:h") -- Get current directory
 
-			if is_git then
-				builtin.git_files({ cwd = path }, { use_git_root = true })
-			else
+			-- Check if we're in a git repo using Neovim's system functions
+			local handle = vim.fn.jobstart({ "git", "-C", path, "rev-parse", "--is-inside-work-tree" }, {
+				stdout_buffered = true,
+				on_stdout = function(_, data)
+					if data and data[1] == "true" then
+						builtin.git_files({ cwd = path }, { use_git_root = true })
+					else
+						builtin.find_files()
+					end
+				end,
+			})
+
+			-- Fallback if job fails to start
+			if handle <= 0 then
 				builtin.find_files()
 			end
 		end, { desc = "Open git files if inside a repo" })
@@ -65,21 +75,24 @@ return {
 			local file_paths = {}
 
 			for _, item in ipairs(harpoon_files.items) do
-				table.insert(file_paths, item.value)
+				vim.list.extend(file_paths, item.value)
 			end
 
+			-- Use Telescope's new picker API
 			require("telescope.pickers")
-				.new({}, {
+				.new({
 					prompt_title = "Harpoon",
 					finder = require("telescope.finders").new_table({
 						results = file_paths,
 					}),
 					previewer = conf.file_previewer({}),
-					sorter = conf.generic_sorter({}),
-				})
+					-- Use the new sorter API instead of deprecated generic_sorter
+					sorter = require("telescope.sorters").get_fuzzy_file(),
+					-- Alternatively, use the generic sorter if you need fuzzy matching:
+					-- sorter = require("telescope.sorters").get_generic_fuzzy_sorter({}),
+				}, {})
 				:find()
 		end
-
 		vim.keymap.set("n", "<leader>ph", function()
 			toggle_telescope(harpoon:list())
 		end, { desc = "Open harpoon window" })

@@ -270,7 +270,6 @@ return {
 						"--issues-exit-code=1",
 					},
 				},
-
 				root_dir = function(fname)
 					return require("lspconfig/util").root_pattern(
 						".golangci.yml",
@@ -282,9 +281,8 @@ return {
 						".git"
 					)(fname)
 				end,
-
 				on_new_config = function(new_config, root_dir)
-					local global_config_path = os.getenv("HOME") .. "/.config/golangci-lint/.golangci.yml"
+					local global_config_path = vim.env.HOME .. "/.config/golangci-lint/.golangci.yml"
 					local project_config_paths = {
 						root_dir .. "/.golangci.yml",
 						root_dir .. "/.golangci.yaml",
@@ -295,25 +293,30 @@ return {
 					-- Check for project-specific configs
 					for _, config_path in ipairs(project_config_paths) do
 						if vim.fn.filereadable(config_path) == 1 then
-							-- Append --config and path to existing command
-							table.insert(new_config.init_options.command, "--config")
-							table.insert(new_config.init_options.command, config_path)
-							print("golangci_lint_ls: using project config at " .. config_path)
+							local command = vim.deepcopy(new_config.init_options.command)
+							table.insert(command, "--config")
+							table.insert(command, config_path)
+							new_config.init_options.command = command
+							vim.notify("golangci_lint_ls: using project config at " .. config_path, vim.log.levels.INFO)
 							return
 						end
 					end
 
 					-- If no project config, check for global config
 					if vim.fn.filereadable(global_config_path) == 1 then
-						-- Append --config and path to existing command
-						table.insert(new_config.init_options.command, "--config")
-						table.insert(new_config.init_options.command, global_config_path)
-						print("golangci_lint_ls: using global config at " .. global_config_path)
+						local command = vim.deepcopy(new_config.init_options.command)
+						table.insert(command, "--config")
+						table.insert(command, global_config_path)
+						new_config.init_options.command = command
+						vim.notify(
+							"golangci_lint_ls: using global config at " .. global_config_path,
+							vim.log.levels.INFO
+						)
 						return
 					end
 
 					-- Fallback: no changes to command, use default
-					print("golangci_lint_ls: using default config")
+					vim.notify("golangci_lint_ls: using default config", vim.log.levels.INFO)
 				end,
 			},
 
