@@ -39,4 +39,4 @@ vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-z>", "<C-x>")
 
 -- Simpler terminal exit
-vim.keymap.set("t", "<esc><esc>", "<c-\\><c-n>")
+vim.keymap.set("t", "<C-[><C-[>", "<c-\\><c-n>")
