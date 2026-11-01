@@ -1,3 +1,9 @@
+-- Disable unused remote providers for faster startup and cleaner healthcheck
+vim.g.loaded_python3_provider = 0
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_node_provider = 0
+
 -- Disables GUI-style cursor (useful in terminal Vim to use the terminal's cursor)
 vim.opt.guicursor = ""
 
@@ -42,7 +48,7 @@ vim.opt.wrap = false
 vim.opt.swapfile = false -- Disables swap file creation
 vim.opt.backup = false -- Disables backup file creation
 -- Sets directory for undo file persistence (allows undo after restart)
-vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+vim.opt.undodir = vim.fn.stdpath("state") .. "/undo"
 vim.opt.undofile = true -- Enables persistent undo
 
 -- Search settings:
@@ -75,7 +81,9 @@ vim.g.netrw_winsize = 34 -- Sets initial width of Netrw window to 34 columns
 vim.o.keywordprg = ":help"
 
 -- Shell configuration:
-vim.o.shell = "zsh" -- Uses zsh as the default shell
+if vim.fn.executable("zsh") == 1 then
+	vim.o.shell = "zsh"
+end
 -- PowerShell configuration
 -- vim.o.shellcmdflag = "-nologo -noprofile -ExecutionPolicy RemoteSigned -command"
 -- vim.o.shellxquote = ""
@@ -86,9 +94,9 @@ vim.o.shell = "zsh" -- Uses zsh as the default shell
 vim.api.nvim_create_autocmd("TermOpen", {
 	group = vim.api.nvim_create_augroup("custom_term_open", { clear = true }),
 	callback = function()
-		vim.opt.nu = false
-		vim.opt.relativenumber = false
-		vim.opt.signcolumn = "no"
+		vim.opt_local.number = false
+		vim.opt_local.relativenumber = false
+		vim.opt_local.signcolumn = "no"
 		vim.opt.winhighlight = "Normal:normal" -- Resets highlighting for terminal window
 	end,
 })

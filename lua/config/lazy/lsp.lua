@@ -134,7 +134,10 @@ return {
 					and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf)
 				then
 					map("<leader>th", function()
-						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
+						vim.lsp.inlay_hint.enable(
+							not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }),
+							{ bufnr = event.buf }
+						)
 					end, "[T]oggle Inlay [H]ints")
 				end
 			end,
@@ -165,13 +168,7 @@ return {
 				source = true,
 				spacing = 2,
 				format = function(diagnostic)
-					local diagnostic_message = {
-						[vim.diagnostic.severity.ERROR] = diagnostic.message,
-						[vim.diagnostic.severity.WARN] = diagnostic.message,
-						[vim.diagnostic.severity.INFO] = diagnostic.message,
-						[vim.diagnostic.severity.HINT] = diagnostic.message,
-					}
-					return diagnostic_message[diagnostic.severity]
+					return diagnostic.message
 				end,
 			},
 			virtual_lines = {

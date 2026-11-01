@@ -32,8 +32,7 @@ local live_multigrep = function(opts)
 				table.insert(args, pieces[2])
 			end
 
-			---@diagnostic disable-next-line: deprecated
-			return vim.tbl_flatten({
+			return vim.iter({
 				args,
 				{
 					"--color=never",
@@ -44,7 +43,7 @@ local live_multigrep = function(opts)
 					"--smart-case",
 					"--pcre2", -- Enable PCRE2 for better regex support
 				},
-			})
+			}):flatten():totable()
 		end,
 
 		entry_maker = make_entry.gen_from_vimgrep(opts),
