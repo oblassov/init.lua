@@ -37,7 +37,7 @@ All plugins are managed by [lazy.nvim](https://github.com/folke/lazy.nvim) and m
 | **Theme & UI** | [`folke/tokyonight.nvim`](https://github.com/folke/tokyonight.nvim) | Main theme (defaults to `tokyonight-day`). Hotswap themes with `:ColorMyPencils <theme>`. |
 | | [`j-hui/fidget.nvim`](https://github.com/j-hui/fidget.nvim) | Lightweight status & progress notifications for LSP. |
 | | [`lukas-reineke/indent-blankline.nvim`](https://github.com/lukas-reineke/indent-blankline.nvim) | Visual indentation guides and active scope indicators. |
-| **Navigation & Search** | [`nvim-telescope/telescope.nvim`](https://github.com/nvim-telescope/telescope.nvim) | Modular fuzzy finder (`branch = "0.1.x"` with Ivy theme layout). |
+| **Navigation & Search** | [`nvim-telescope/telescope.nvim`](https://github.com/nvim-telescope/telescope.nvim) | Modular fuzzy finder (`version = "*"` for latest stable release, Ivy theme layout). |
 | | [`nvim-telescope/telescope-fzf-native.nvim`](https://github.com/nvim-telescope/telescope-fzf-native.nvim) | High-performance C-based fzf sorter for Telescope. |
 | | [`ThePrimeagen/harpoon`](https://github.com/ThePrimeagen/harpoon) | Harpoon 2 for fast home-row buffer pinning and switching. |
 | | [`local/telescope/multigrep`](lua/config/local/telescope/multigrep.lua) | Custom async two-query picker (pattern + file filter via `  `). |
