@@ -30,7 +30,7 @@ return {
 				stdout_buffered = true,
 				on_stdout = function(_, data)
 					if data and data[1] == "true" then
-						builtin.git_files({ cwd = path }, { use_git_root = true })
+						builtin.git_files({ cwd = path, use_git_root = true })
 					else
 						builtin.find_files()
 					end
@@ -66,16 +66,14 @@ return {
 			})
 		end)
 
-		-- Basic Harpoon configuration
 		local harpoon = require("harpoon")
-		harpoon:setup({})
 
 		local conf = require("telescope.config").values
 		local function toggle_telescope(harpoon_files)
 			local file_paths = {}
 
 			for _, item in ipairs(harpoon_files.items) do
-				vim.list.extend(file_paths, item.value)
+				table.insert(file_paths, item.value)
 			end
 
 			-- Use Telescope's new picker API
