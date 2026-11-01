@@ -250,13 +250,37 @@ function M.setup(opts)
 		height = 0.34,
 	}, opts.side_term or {})
 
-	-- Toggle side terminal split (<C-\>)
-	vim.keymap.set({ "n", "t" }, keymaps.toggle_terminal, function()
+	-- Toggle side terminal split: Normal mode (<C-\>)
+	vim.keymap.set("n", keymaps.toggle_terminal, function()
 		toggle_side_term({ width = side_term.width, height = side_term.height })
 	end, {
 		desc = "Toggle terminal split",
 		silent = true,
 	})
+
+	-- Guard terminal mode keymaps: prevent registering <leader> or <Space>-prefixed keys in "t" mode
+	local is_space_leader = function(key)
+		if not key or type(key) ~= "string" then
+			return false
+		end
+		local lower = key:lower()
+		return lower:match("^<space>") or lower:match("^<leader>") or key:sub(1, 1) == " "
+	end
+
+	-- Toggle side terminal split from terminal mode (single chords only)
+	if not is_space_leader(keymaps.toggle_terminal) then
+		vim.keymap.set("t", keymaps.toggle_terminal, function()
+			toggle_side_term({ width = side_term.width, height = side_term.height })
+		end, {
+			desc = "Toggle terminal split from terminal mode",
+			silent = true,
+		})
+	else
+		vim.notify(
+			"[termit] Cannot bind '" .. keymaps.toggle_terminal .. "' in terminal mode: <Space>/<leader> prefix introduces typing delay.",
+			vim.log.levels.WARN
+		)
+	end
 
 	-- Toggle floating LazyGit window (<leader>lg in Normal mode)
 	vim.keymap.set("n", keymaps.toggle_lazygit, function()
@@ -271,11 +295,18 @@ function M.setup(opts)
 		silent = true,
 	})
 
-	-- Hide terminal from inside terminal mode (<C-]>)
-	vim.keymap.set("t", keymaps.hide_terminal, hide_terminal, {
-		desc = "Hide terminal split",
-		silent = true,
-	})
+	-- Hide terminal from inside terminal mode (<C-]> single chord)
+	if not is_space_leader(keymaps.hide_terminal) then
+		vim.keymap.set("t", keymaps.hide_terminal, hide_terminal, {
+			desc = "Hide terminal split",
+			silent = true,
+		})
+	else
+		vim.notify(
+			"[termit] Cannot bind '" .. keymaps.hide_terminal .. "' in terminal mode: <Space>/<leader> prefix introduces typing delay.",
+			vim.log.levels.WARN
+		)
+	end
 end
 
 return M
