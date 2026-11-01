@@ -222,7 +222,7 @@ function M.setup(opts)
 
 	local keymaps = vim.tbl_deep_extend("force", {
 		toggle_terminal = "<C-\\>",
-		toggle_floating_cliapp = "<C-G>",
+		toggle_lazygit = (opts.keymaps and (opts.keymaps.toggle_lazygit or opts.keymaps.toggle_floating_cliapp)) or "<leader>lg",
 		hide_terminal = "<C-]>",
 	}, opts.keymaps or {})
 
@@ -245,7 +245,7 @@ function M.setup(opts)
 		silent = true,
 	})
 
-	vim.keymap.set({ "n", "t" }, keymaps.toggle_floating_cliapp, function()
+	vim.keymap.set("n", keymaps.toggle_lazygit, function()
 		toggle_floating_cliapp({
 			width = floating.width,
 			height = floating.height,

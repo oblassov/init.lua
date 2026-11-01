@@ -42,7 +42,7 @@ require("lazy").setup({
 		title_pos = "center", ---@type "center" | "left" | "right"
 		-- Show pills on top of the Lazy window
 		pills = true, ---@type boolean
-		icons = vim.g.have_nerd_font and {} or {
+		icons = vim.g.have_nerd_font and {
 			cmd = " ",
 			config = "",
 			debug = "● ",
@@ -67,6 +67,6 @@ require("lazy").setup({
 				"★",
 				"‒",
 			},
-		},
+		} or {},
 	},
 })

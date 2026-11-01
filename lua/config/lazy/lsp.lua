@@ -339,8 +339,6 @@ return {
 				}),
 			},
 
-			stylua = {}, -- Used to format Lua code
-
 			lua_ls = {
 				-- cmd = {...},
 				-- filetypes = { ...},
@@ -399,6 +397,7 @@ return {
 		local ensure_installed = vim.tbl_keys(servers or {})
 
 		vim.list_extend(ensure_installed, {
+			"stylua", -- Lua formatter (used by conform.nvim)
 			-- "golangci-lint", -- Golang Linters
 		})
 
