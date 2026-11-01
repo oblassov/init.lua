@@ -27,6 +27,9 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	spec = "config.lazy",
 	change_detection = { notify = false },
+	rocks = {
+		enabled = false, -- Disables luarocks and hererocks entirely
+	},
 	ui = {
 		-- a number <1 is a percentage., >1 is a fixed size
 		size = { width = 0.8, height = 0.8 },
