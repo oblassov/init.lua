@@ -1,3 +1,7 @@
+-- Custom Telescope extension: Live MultiGrep
+-- Allows filtering text content and file paths simultaneously using a two-space delimiter.
+-- Syntax: "<search pattern>  <file glob>" (e.g. "function  *.lua" or "err  !*_test.go")
+
 local pickers = require("telescope.pickers")
 local finders = require("telescope.finders")
 local make_entry = require("telescope.make_entry")
@@ -5,6 +9,7 @@ local conf = require("telescope.config").values
 
 local M = {}
 
+-- Spawns an async Telescope picker with a dynamic ripgrep command generator
 local live_multigrep = function(opts)
 	opts = opts or {}
 	opts.cwd = opts.cwd or vim.fn.getcwd()
@@ -15,11 +20,13 @@ local live_multigrep = function(opts)
 				return nil
 			end
 
+			-- Delimiter: two spaces ("  ") separates content search from file glob
 			local pieces = vim.split(prompt, "  ")
 			local args = { "rg" }
 
+			-- Piece 1: Search query -> converted to inline fuzzy regex pattern
 			if pieces[1] then
-				-- Convert the search pattern to fuzzy matching pattern
+				-- Transforms "abc" -> "[^a]*a[^b]*b[^c]*c" for regex fuzzy matching
 				local fuzzy_pattern = pieces[1]:gsub(".", function(c)
 					return "[^" .. c .. "]*" .. c
 				end)
@@ -27,11 +34,13 @@ local live_multigrep = function(opts)
 				table.insert(args, fuzzy_pattern)
 			end
 
+			-- Piece 2: Optional file path / glob filter (passed to rg -g)
 			if pieces[2] then
 				table.insert(args, "-g")
 				table.insert(args, pieces[2])
 			end
 
+			-- Ripgrep output flags required by Telescope's vimgrep entry maker
 			return vim.iter({
 				args,
 				{
@@ -41,7 +50,7 @@ local live_multigrep = function(opts)
 					"--line-number",
 					"--column",
 					"--smart-case",
-					"--pcre2", -- Enable PCRE2 for better regex support
+					"--pcre2", -- Enable PCRE2 for regex support
 				},
 			}):flatten():totable()
 		end,
@@ -52,8 +61,8 @@ local live_multigrep = function(opts)
 
 	pickers
 		.new(opts, {
-			debounce = 100,
-			prompt_title = "Multi Grep",
+			debounce = 100, -- Throttle subprocess spawning while typing (100ms)
+			prompt_title = "Multi Grep (<pattern>  <glob>)",
 			finder = finder,
 			previewer = conf.grep_previewer(opts),
 			sorter = require("telescope.sorters").get_fuzzy_file(),
@@ -62,7 +71,7 @@ local live_multigrep = function(opts)
 end
 
 M.setup = function()
-	vim.keymap.set("n", "<leader>ps", live_multigrep)
+	vim.keymap.set("n", "<leader>ps", live_multigrep, { desc = "Telescope: live multigrep (pattern  glob)" })
 end
 
 return M

@@ -1,26 +1,34 @@
+-- Termit: Lightweight, stateful terminal & floating CLI application manager
+-- Features:
+-- 1. Floating CLI tool window (default: lazygit via <leader>lg) with auto-centering
+-- 2. Stateful side terminal split (<C-\>) that reuses buffers and remembers previous window
+-- 3. Dedicated hide key (<C-]>) in terminal mode to dismiss windows without killing processes
+
 local M = {}
 
+-- State table: preserves buffer and window handles across open/close toggles
 local state = {
-	original = { buf = -1, win = -1 },
-	terminal = { buf = -1, win = -1 },
-	split_term = { buf = -1, win = -1 },
-	floating = { buf = -1, win = -1 },
+	original = { buf = -1, win = -1 }, -- Window focused before opening terminal
+	terminal = { buf = -1, win = -1 }, -- Active terminal buffer/window tracking
+	split_term = { buf = -1, win = -1 }, -- Side split terminal window & buffer
+	floating = { buf = -1, win = -1 }, -- Floating CLI window & buffer
 }
 
+-- Creates or reuses a centered floating window
 local function create_floating_window(opts)
 	opts = opts or {}
 
-	vim.cmd("cd %:p:h") -- Sets current directory for a buffer
+	vim.cmd("cd %:p:h") -- Set working directory to the current file's parent folder
 
-	-- Calculate the width and height of the window
+	-- Calculate window dimensions based on editor size
 	local width = opts.width or math.floor(vim.o.columns * 0.95)
 	local height = opts.height or math.floor((vim.o.lines - 2) * 0.9)
 
-	-- Center the window
+	-- Center the floating window horizontally and vertically
 	local col = math.floor((vim.o.columns - width) / 2)
 	local row = math.floor((vim.o.lines - height) / 2) - 2
 
-	-- Create or reuse buffer
+	-- Reuse existing buffer if valid, otherwise create a new unlisted buffer
 	local buf = nil
 	if opts.buf and vim.api.nvim_buf_is_valid(opts.buf) then
 		buf = opts.buf
@@ -31,7 +39,7 @@ local function create_floating_window(opts)
 		vim.bo[buf].swapfile = false
 	end
 
-	-- Create window with specific options
+	-- Window configuration with centered coordinates and borders
 	local win_config = {
 		relative = "editor",
 		width = width,
@@ -47,25 +55,24 @@ local function create_floating_window(opts)
 	return { buf = buf, win = win }
 end
 
--- Open a floating terminal with lazygit in it
+-- Toggles a floating window running a CLI app (e.g. lazygit)
 local function toggle_floating_cliapp(opts)
 	opts = opts or {}
 
+	-- Save reference to existing terminal window if currently in one
 	if state.terminal.win == -1 and vim.bo.buftype == "terminal" then
 		state.terminal.win = vim.api.nvim_get_current_win()
 		state.terminal.buf = vim.api.nvim_get_current_buf()
 	end
 
-	-- If the width is out of bounds or too small use fixed sizes
+	-- Clamp width and height percentages within safe bounds
 	local w = math.min(math.max((opts.width or 0.95), 0.6), 1)
-
-	-- If the height is out of bounds or too small use fixed sizes
 	local h = math.min(math.max((opts.height or 0.9), 0.6), 1)
 
-	-- Calculate the width and height of the window
 	local width = math.floor(vim.o.columns * w)
 	local height = math.floor((vim.o.lines - 2) * h)
 
+	-- Minimum dimension safety check to prevent CLI app display errors
 	if width < 85 or height < 23 then
 		print("⚠️  Window is too small for floating cliapps!")
 		if vim.api.nvim_win_is_valid(state.terminal.win) then
@@ -79,14 +86,14 @@ local function toggle_floating_cliapp(opts)
 		return
 	end
 
-	-- Exit terminal if we are in a terminal buffer
+	-- Leave terminal insert mode before opening float
 	if vim.api.nvim_win_is_valid(state.terminal.win) then
 		if vim.api.nvim_get_mode().mode:sub(1, 1) == "i" then
 			vim.cmd("stopinsert")
 		end
 	end
 
-	-- Toggle floating window
+	-- Open window if closed, or hide if open
 	if not vim.api.nvim_win_is_valid(state.floating.win) then
 		state.floating = create_floating_window({
 			buf = state.floating.buf,
@@ -95,24 +102,25 @@ local function toggle_floating_cliapp(opts)
 			border = opts.border,
 		})
 
-		-- Check if window was created
+		-- Initialize CLI process inside buffer on first launch
 		if vim.api.nvim_win_is_valid(state.floating.win) then
-			-- If the buffer is not terminal - start the terminal and lazygit
 			if vim.bo[state.floating.buf].buftype ~= "terminal" then
 				vim.cmd.terminal(opts.cliapp)
 			end
 
+			-- Focus and enter insert mode inside the terminal
 			vim.schedule(function()
 				if vim.api.nvim_get_mode().mode ~= "i" then
 					vim.cmd("startinsert")
 				end
 			end)
 		end
-	else -- Hide the floating window
+	else
+		-- Hide floating window (process remains alive in buffer)
 		vim.api.nvim_win_hide(state.floating.win)
 		state.floating.win = -1
 
-		-- Check if the previous window was terminal
+		-- Restore focus to previous terminal if applicable
 		if vim.api.nvim_win_is_valid(state.terminal.win) then
 			vim.schedule(function()
 				if vim.api.nvim_get_mode().mode ~= "i" then
@@ -124,21 +132,20 @@ local function toggle_floating_cliapp(opts)
 	end
 end
 
+-- Creates or reuses a side split window (automatically chooses vertical vs horizontal)
 local function create_side_window(opts)
 	opts = opts or {}
 
-	vim.cmd("cd %:p:h") -- Sets current directory for a buffer
+	vim.cmd("cd %:p:h")
 
-	-- If the width is bigger than the window or too small use fixed sizes
+	-- Clamp split proportions between 20% and 50%
 	local w = math.min(math.max((opts.width or 0.34), 0.2), 0.5)
-
-	-- If the height is bigger than the window or too small use fixed sizes
 	local h = math.min(math.max((opts.height or 0.34), 0.2), 0.5)
 
 	local width = math.floor(vim.o.columns * w)
 	local height = math.floor((vim.o.lines - 2) * h)
 
-	-- Create or reuse buffer
+	-- Reuse or create buffer
 	local buf = nil
 	if opts.buf and vim.api.nvim_buf_is_valid(opts.buf) then
 		buf = opts.buf
@@ -149,10 +156,10 @@ local function create_side_window(opts)
 		vim.bo[buf].swapfile = false
 	end
 
-	-- If the window is too narrow choose horizontal split
-	if width > 59 then -- Vertical split
+	-- If editor is wide enough (>59 cols), use vertical split; otherwise horizontal
+	if width > 59 then
 		vim.cmd("leftabove " .. width .. "vsplit")
-	elseif height > 8 then -- Horizontal split
+	elseif height > 8 then
 		vim.cmd("belowright " .. height .. "split")
 	else
 		print("⚠️  Window is too small to split!")
@@ -160,21 +167,23 @@ local function create_side_window(opts)
 	end
 
 	local win = vim.api.nvim_get_current_win()
-
 	vim.api.nvim_win_set_buf(win, buf)
 
 	return { buf = buf, win = win }
 end
 
+-- Toggles side terminal split, switching focus back and forth between code and shell
 local function toggle_side_term(opts)
 	opts = opts or {}
 
 	local win = vim.api.nvim_get_current_win()
 
+	-- Remember original code window before focusing split
 	if state.split_term.win == -1 and win ~= state.floating.win then
 		state.original.win = win
 	end
 
+	-- Open split if not open, or cycle focus between code and terminal
 	if not vim.api.nvim_win_is_valid(state.split_term.win) then
 		state.split_term = create_side_window({
 			buf = state.split_term.buf,
@@ -182,8 +191,8 @@ local function toggle_side_term(opts)
 			height = opts.height,
 		})
 
-		-- Check if window was created
 		if vim.api.nvim_win_is_valid(state.split_term.win) then
+			-- Start shell if buffer is fresh
 			if vim.bo[state.split_term.buf].buftype ~= "terminal" then
 				vim.cmd.terminal(vim.o.shell)
 			end
@@ -192,10 +201,12 @@ local function toggle_side_term(opts)
 			end
 		end
 	elseif win == state.split_term.win then
+		-- If inside terminal split, switch focus back to original code window
 		if vim.api.nvim_win_is_valid(state.original.win) then
 			vim.api.nvim_set_current_win(state.original.win)
 		end
 	elseif win == state.original.win then
+		-- If in original window, switch focus into the open terminal split
 		if vim.api.nvim_win_is_valid(state.split_term.win) then
 			vim.api.nvim_set_current_win(state.split_term.win)
 			if vim.api.nvim_get_mode().mode ~= "i" then
@@ -205,9 +216,9 @@ local function toggle_side_term(opts)
 	end
 end
 
+-- Hides whichever terminal window (side split or floating) currently has focus
 local function hide_terminal()
 	local win = vim.api.nvim_get_current_win()
-	-- Check which window are we hiding
 	if win == state.split_term.win then
 		vim.api.nvim_win_hide(win)
 		state.split_term.win = -1
@@ -217,6 +228,7 @@ local function hide_terminal()
 	end
 end
 
+-- Public setup function: merges configuration options and sets keymaps
 function M.setup(opts)
 	opts = opts or {}
 
@@ -238,6 +250,7 @@ function M.setup(opts)
 		height = 0.34,
 	}, opts.side_term or {})
 
+	-- Toggle side terminal split (<C-\>)
 	vim.keymap.set({ "n", "t" }, keymaps.toggle_terminal, function()
 		toggle_side_term({ width = side_term.width, height = side_term.height })
 	end, {
@@ -245,6 +258,7 @@ function M.setup(opts)
 		silent = true,
 	})
 
+	-- Toggle floating LazyGit window (<leader>lg in Normal mode)
 	vim.keymap.set("n", keymaps.toggle_lazygit, function()
 		toggle_floating_cliapp({
 			width = floating.width,
@@ -257,6 +271,7 @@ function M.setup(opts)
 		silent = true,
 	})
 
+	-- Hide terminal from inside terminal mode (<C-]>)
 	vim.keymap.set("t", keymaps.hide_terminal, hide_terminal, {
 		desc = "Hide terminal split",
 		silent = true,
