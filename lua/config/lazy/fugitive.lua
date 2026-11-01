@@ -1,7 +1,8 @@
 return {
+	-- Fugitive: Git wrapper for status, blame, diffs, and merge conflict resolution
 	"tpope/vim-fugitive",
 	config = function()
-		vim.keymap.set("n", "<leader>gt", vim.cmd.Git)
+		vim.keymap.set("n", "<leader>gt", vim.cmd.Git, { desc = "Git: open Fugitive status window" })
 
 		local Local_Config_Fugitive = vim.api.nvim_create_augroup("Local_Config_Fugitive", {})
 
@@ -16,22 +17,29 @@ return {
 
 				local bufnr = vim.api.nvim_get_current_buf()
 				local opts = { buffer = bufnr, remap = false }
+
+				-- Buffer-local git actions inside Fugitive window
 				vim.keymap.set("n", "<leader>p", function()
 					vim.cmd.Git("push")
-				end, opts)
+				end, vim.tbl_extend("force", opts, { desc = "Git: push" }))
 
-				-- rebase always
 				vim.keymap.set("n", "<leader>P", function()
 					vim.cmd.Git({ "pull", "--rebase" })
-				end, opts)
+				end, vim.tbl_extend("force", opts, { desc = "Git: pull --rebase" }))
 
-				-- NOTE: It allows me to easily set the branch i am pushing and any tracking
-				-- needed if i did not set the branch up correctly
-				vim.keymap.set("n", "<leader>t", ":Git push -u origin ", opts)
+				vim.keymap.set(
+					"n",
+					"<leader>t",
+					":Git push -u origin ",
+					vim.tbl_extend("force", opts, { desc = "Git: push -u origin <branch>" })
+				)
 			end,
 		})
 
-		vim.keymap.set("n", "gu", "<cmd>diffget //2<CR>")
-		vim.keymap.set("n", "gh", "<cmd>diffget //3<CR>")
+		-- 3-way merge conflict resolution shortcuts:
+		-- gu: diffget //2 -> accept hunk from LOCAL/target branch
+		-- gh: diffget //3 -> accept hunk from REMOTE/incoming branch
+		vim.keymap.set("n", "gu", "<cmd>diffget //2<CR>", { desc = "Git merge: take LOCAL changes (target)" })
+		vim.keymap.set("n", "gh", "<cmd>diffget //3<CR>", { desc = "Git merge: take REMOTE changes (incoming)" })
 	end,
 }

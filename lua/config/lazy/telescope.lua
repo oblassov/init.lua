@@ -1,4 +1,5 @@
 return {
+	-- Telescope: Fuzzy finder over files, git, symbols, and plugins
 	"nvim-telescope/telescope.nvim",
 	branch = "0.1.x",
 	dependencies = {
@@ -18,7 +19,8 @@ return {
 		require("telescope").load_extension("fzf")
 		require("config.local.telescope.multigrep").setup()
 
-		vim.keymap.set("n", "<leader>pf", builtin.find_files)
+		-- File search pickers
+		vim.keymap.set("n", "<leader>pf", builtin.find_files, { desc = "Find files in project" })
 
 		vim.keymap.set("n", "<C-p>", function()
 			local path = vim.fn.expand("%:p:h") -- Get current directory
@@ -39,31 +41,34 @@ return {
 			if handle <= 0 then
 				builtin.find_files()
 			end
-		end, { desc = "Open git files if inside a repo" })
+		end, { desc = "Find git files (fallback to find_files)" })
 
+		-- Grep pickers under cursor
 		vim.keymap.set("n", "<leader>pws", function()
 			local word = vim.fn.expand("<cword>")
 			builtin.grep_string({ search = word })
-		end)
+		end, { desc = "Grep word under cursor" })
 
 		vim.keymap.set("n", "<leader>pWs", function()
 			local word = vim.fn.expand("<cWORD>")
 			builtin.grep_string({ search = word })
-		end)
+		end, { desc = "Grep WORD under cursor" })
 
-		vim.keymap.set("n", "<leader>fh", builtin.help_tags)
+		-- Help & config navigation
+		vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Search help documentation tags" })
 
 		vim.keymap.set("n", "<leader>fn", function()
 			---@diagnostic disable-next-line: param-type-mismatch
 			builtin.find_files({ cwd = vim.fs.joinpath(vim.fn.stdpath("data"), "lazy") })
-		end)
+		end, { desc = "Find Neovim plugin files" })
 
 		vim.keymap.set("n", "<leader>cn", function()
 			builtin.find_files({
 				cwd = vim.fn.stdpath("config"),
 			})
-		end)
+		end, { desc = "Find Neovim config files" })
 
+		-- Harpoon picker integration
 		local harpoon = require("harpoon")
 
 		local conf = require("telescope.config").values
@@ -82,15 +87,12 @@ return {
 						results = file_paths,
 					}),
 					previewer = conf.file_previewer({}),
-					-- Use the new sorter API instead of deprecated generic_sorter
 					sorter = require("telescope.sorters").get_fuzzy_file(),
-					-- Alternatively, use the generic sorter if you need fuzzy matching:
-					-- sorter = require("telescope.sorters").get_generic_fuzzy_sorter({}),
 				}, {})
 				:find()
 		end
 		vim.keymap.set("n", "<leader>ph", function()
 			toggle_telescope(harpoon:list())
-		end, { desc = "Open harpoon window" })
+		end, { desc = "Open Harpoon list in Telescope" })
 	end,
 }
