@@ -279,7 +279,7 @@ return {
 					)(fname)
 				end,
 				on_new_config = function(new_config, root_dir)
-					local global_config_path = vim.env.HOME .. "/.config/golangci-lint/.golangci.yml"
+					local global_config_path = vim.fn.expand("~/.config/golangci-lint/.golangci.yml")
 					local project_config_paths = {
 						root_dir .. "/.golangci.yml",
 						root_dir .. "/.golangci.yaml",
