@@ -52,7 +52,9 @@ local live_multigrep = function(opts)
 					"--smart-case",
 					"--pcre2", -- Enable PCRE2 for regex support
 				},
-			}):flatten():totable()
+			})
+				:flatten()
+				:totable()
 		end,
 
 		entry_maker = make_entry.gen_from_vimgrep(opts),

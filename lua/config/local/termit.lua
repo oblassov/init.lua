@@ -234,7 +234,8 @@ function M.setup(opts)
 
 	local keymaps = vim.tbl_deep_extend("force", {
 		toggle_terminal = "<C-\\>",
-		toggle_lazygit = (opts.keymaps and (opts.keymaps.toggle_lazygit or opts.keymaps.toggle_floating_cliapp)) or "<leader>lg",
+		toggle_lazygit = (opts.keymaps and (opts.keymaps.toggle_lazygit or opts.keymaps.toggle_floating_cliapp))
+			or "<leader>lg",
 		hide_terminal = "<C-]>",
 	}, opts.keymaps or {})
 
@@ -277,7 +278,9 @@ function M.setup(opts)
 		})
 	else
 		vim.notify(
-			"[termit] Cannot bind '" .. keymaps.toggle_terminal .. "' in terminal mode: <Space>/<leader> prefix introduces typing delay.",
+			"[termit] Cannot bind '"
+				.. keymaps.toggle_terminal
+				.. "' in terminal mode: <Space>/<leader> prefix introduces typing delay.",
 			vim.log.levels.WARN
 		)
 	end
@@ -303,7 +306,9 @@ function M.setup(opts)
 		})
 	else
 		vim.notify(
-			"[termit] Cannot bind '" .. keymaps.hide_terminal .. "' in terminal mode: <Space>/<leader> prefix introduces typing delay.",
+			"[termit] Cannot bind '"
+				.. keymaps.hide_terminal
+				.. "' in terminal mode: <Space>/<leader> prefix introduces typing delay.",
 			vim.log.levels.WARN
 		)
 	end
