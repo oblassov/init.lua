@@ -31,12 +31,30 @@ return {
 		end,
 		formatters_by_ft = {
 			lua = { "stylua" },
-			go = { "gofmt" },
-			-- Conform can also run multiple formatters sequentially
-			-- python = { "isort", "black" },
-			--
-			-- You can use 'stop_after_first' to run the first available formatter from the list
-			-- javascript = { "prettierd", "prettier", stop_after_first = true },
+			-- golangci-lint fmt applies the project's .golangci.yml formatters (gofumpt, goimports),
+			-- the same formatting Claude's lint hook applies; plain gofmt when golangci-lint is missing
+			go = { "golangci-lint", "gofmt", stop_after_first = true },
+			-- Ruff: sort imports, then format (reads ruff.toml / pyproject.toml)
+			python = { "ruff_organize_imports", "ruff_format" },
+			-- Prettier from the project's node_modules; LSP formatting when the project has none
+			javascript = { "prettier" },
+			javascriptreact = { "prettier" },
+			typescript = { "prettier" },
+			typescriptreact = { "prettier" },
+		},
+		formatters = {
+			["golangci-lint"] = {
+				-- `fmt --stdin` only finds .golangci.yml when run from the project directory
+				cwd = function(self, ctx)
+					return require("conform.util").root_file({
+						".golangci.yml",
+						".golangci.yaml",
+						".golangci.toml",
+						".golangci.json",
+						"go.mod",
+					})(self, ctx)
+				end,
+			},
 		},
 	},
 }
