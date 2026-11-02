@@ -210,7 +210,6 @@ return {
 
 			gopls = {
 				filetypes = { "go", "gomod", "gowork", "gotmpl" },
-				root_dir = require("lspconfig/util").root_pattern("go.work", "go.mod", ".git"),
 				settings = {
 					gopls = {
 						gofumpt = false,
@@ -268,33 +267,27 @@ return {
 						"--issues-exit-code=1",
 					},
 				},
-				root_dir = function(fname)
-					return require("lspconfig/util").root_pattern(
-						".golangci.yml",
-						".golangci.yaml",
-						".golangci.toml",
-						".golangci.json",
-						"go.mod",
-						"go.work",
-						".git"
-					)(fname)
-				end,
-				on_new_config = function(new_config, root_dir)
+				-- Root detection comes from nvim-lspconfig's default root_markers (same file list as before).
+				-- before_init replaces the removed on_new_config hook; init_options is the table sent to the server.
+				before_init = function(_, config)
+					local root_dir = config.root_dir
 					local global_config_path = vim.fn.expand("~/.config/golangci-lint/.golangci.yml")
-					local project_config_paths = {
-						root_dir .. "/.golangci.yml",
-						root_dir .. "/.golangci.yaml",
-						root_dir .. "/.golangci.toml",
-						root_dir .. "/.golangci.json",
-					}
+					local project_config_paths = root_dir
+							and {
+								root_dir .. "/.golangci.yml",
+								root_dir .. "/.golangci.yaml",
+								root_dir .. "/.golangci.toml",
+								root_dir .. "/.golangci.json",
+							}
+						or {}
 
 					-- Check for project-specific configs
 					for _, config_path in ipairs(project_config_paths) do
 						if vim.fn.filereadable(config_path) == 1 then
-							local command = vim.deepcopy(new_config.init_options.command)
+							local command = vim.deepcopy(config.init_options.command)
 							table.insert(command, "--config")
 							table.insert(command, config_path)
-							new_config.init_options.command = command
+							config.init_options.command = command
 							vim.notify("golangci_lint_ls: using project config at " .. config_path, vim.log.levels.INFO)
 							return
 						end
@@ -302,10 +295,10 @@ return {
 
 					-- If no project config, check for global config
 					if vim.fn.filereadable(global_config_path) == 1 then
-						local command = vim.deepcopy(new_config.init_options.command)
+						local command = vim.deepcopy(config.init_options.command)
 						table.insert(command, "--config")
 						table.insert(command, global_config_path)
-						new_config.init_options.command = command
+						config.init_options.command = command
 						vim.notify(
 							"golangci_lint_ls: using global config at " .. global_config_path,
 							vim.log.levels.INFO
@@ -401,20 +394,19 @@ return {
 
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
+		-- Shared capabilities for every server (adds nvim-cmp completion support)
+		vim.lsp.config("*", { capabilities = capabilities })
+
+		-- Register per-server overrides; they merge on top of nvim-lspconfig's lsp/<name>.lua defaults
+		for server_name, server in pairs(servers) do
+			vim.lsp.config(server_name, server)
+		end
+
 		---@diagnostic disable-next-line: missing-fields
 		require("mason-lspconfig").setup({
 			ensure_installed = {},
-			automatic_installation = false,
-			handlers = {
-				function(server_name)
-					local server = servers[server_name] or {}
-					-- This handles overriding only values explicitly passed
-					-- by the server configuration above. Useful when disabling
-					-- certain features of an LSP (for example, turning off formatting for ts_ls)
-					server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-					require("lspconfig")[server_name].setup(server)
-				end,
-			},
+			-- Enables installed servers via vim.lsp.enable(); stylua is a formatter run by conform, not an LSP
+			automatic_enable = { exclude = { "stylua" } },
 		})
 	end,
 }
