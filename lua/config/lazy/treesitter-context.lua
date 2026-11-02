@@ -1,6 +1,5 @@
 return {
 	"nvim-treesitter/nvim-treesitter-context",
-	version = "*", -- Track latest stable semver release
 	event = { "BufReadPost", "BufNewFile" },
 	dependencies = {
 		"nvim-treesitter/nvim-treesitter",
