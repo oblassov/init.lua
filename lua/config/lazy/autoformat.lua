@@ -1,5 +1,6 @@
 return {
 	"stevearc/conform.nvim",
+	version = "*", -- Track latest stable semver release
 	event = { "BufWritePre" },
 	cmd = { "ConformInfo" },
 	keys = {

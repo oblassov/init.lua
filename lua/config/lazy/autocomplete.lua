@@ -3,6 +3,7 @@ return {
 		-- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
 		-- used for completion, annotations and signatures of Neovim API
 		"folke/lazydev.nvim",
+		version = "*", -- Track latest stable semver release
 		ft = "lua",
 		opts = {
 			library = {
@@ -21,6 +22,7 @@ return {
 			-- Snippet Engine & its associated nvim-cmp source
 			{
 				"L3MON4D3/LuaSnip",
+				version = "*", -- Track latest stable semver release
 				build = (function()
 					-- Build Step is needed for regex support in snippets.
 					-- This step is not supported in many windows environments.

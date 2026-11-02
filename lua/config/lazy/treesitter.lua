@@ -1,82 +1,66 @@
 return {
 	"nvim-treesitter/nvim-treesitter",
-	branch = "master",
+	branch = "main", -- Upstream mainline (master is frozen); requires nvim 0.12+ and tree-sitter CLI
+	lazy = false, -- main branch does not support lazy-loading
 	build = ":TSUpdate",
 	config = function()
-		-- Compatibility shim for Neovim 0.12+ quantified captures in treesitter directives
-		local query = require("vim.treesitter.query")
-		local function first_node(node)
-			if type(node) == "table" then
-				return node[1]
-			end
-			return node
-		end
+		local ts = require("nvim-treesitter")
 
-		query.add_directive("set-lang-from-info-string!", function(match, _, bufnr, pred, metadata)
-			local id = pred[2]
-			local node = first_node(match[id])
-			if not node then
+		-- Parsers to keep installed (install() is async and skips already-installed parsers)
+		ts.install({
+			"bash",
+			"c",
+			"cpp",
+			"go",
+			"templ",
+			"rust",
+			"java",
+			"json",
+			"jsdoc",
+			"lua",
+			"vim",
+			"vimdoc",
+			"query",
+			"javascript",
+			"typescript",
+			"html",
+			"yaml",
+			"markdown",
+			"markdown_inline",
+			"sql",
+		})
+
+		-- Enable highlighting + indentation for a buffer (replaces configs.setup highlight/indent)
+		local function attach(buf, lang, ft)
+			if not pcall(vim.treesitter.start, buf, lang) then
 				return
 			end
-			local alias = vim.treesitter.get_node_text(node, bufnr):lower()
-			local match_ft = vim.filetype.match({ filename = "a." .. alias })
-			metadata["injection.language"] = match_ft or alias
-		end, { force = true })
+			if ft == "markdown" then
+				vim.bo[buf].syntax = "on" -- Was additional_vim_regex_highlighting = { "markdown" }
+			end
+			if ft ~= "yaml" then -- Was indent.disable = { "yaml" }
+				vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+			end
+		end
 
-		require("nvim-treesitter.install").prefer_git = false
-		require("nvim-treesitter.install").compilers = { "clang", "gcc" }
-
-		require("nvim-treesitter.configs").setup({
-
-			-- A list of parser names, or "all"
-			ensure_installed = {
-				"bash",
-				"c",
-				"cpp",
-				"go",
-				"templ",
-				"rust",
-				"java",
-				"json",
-				"jsdoc",
-				"lua",
-				"vim",
-				"vimdoc",
-				"query",
-				"javascript",
-				"typescript",
-				"html",
-				"yaml",
-				"markdown",
-				"markdown_inline",
-				"sql",
-			},
-
-			-- Install parsers synchronously (only applied to `ensure_installed`)
-			sync_install = false,
-
-			-- Automatically install missing parsers when entering buffer
-			-- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-			auto_install = true,
-
-			indent = {
-				enable = true,
-				disable = { "yaml" },
-			},
-
-			highlight = {
-				-- `false` will disable the whole extension
-				enable = true,
-
-				-- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-				-- Set this to `true` if you depend on "syntax" being enabled (like for indentation).
-				-- Using this option may slow down your editor, and you may see some duplicate highlights.
-				-- Instead of true it can also be a list of languages
-				additional_vim_regex_highlighting = { "markdown" },
-			},
-
-			ignore_install = {},
-			modules = {},
+		vim.api.nvim_create_autocmd("FileType", {
+			group = vim.api.nvim_create_augroup("TreesitterAttach", { clear = true }),
+			callback = function(event)
+				local lang = vim.treesitter.language.get_lang(event.match)
+				if not lang then
+					return
+				end
+				if vim.tbl_contains(ts.get_installed(), lang) then
+					attach(event.buf, lang, event.match)
+				elseif vim.tbl_contains(ts.get_available(), lang) then
+					-- Was auto_install = true: install missing parser, then attach
+					ts.install(lang):await(vim.schedule_wrap(function()
+						if vim.api.nvim_buf_is_valid(event.buf) then
+							attach(event.buf, lang, event.match)
+						end
+					end))
+				end
+			end,
 		})
 	end,
 }
