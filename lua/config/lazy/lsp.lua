@@ -2,8 +2,8 @@ return {
 	"neovim/nvim-lspconfig",
 	version = "*", -- Track latest stable semver release
 	dependencies = {
-		{ "williamboman/mason.nvim", version = "*", config = true },
-		{ "williamboman/mason-lspconfig.nvim", version = "*" },
+		{ "mason-org/mason.nvim", version = "*", config = true },
+		{ "mason-org/mason-lspconfig.nvim", version = "*" },
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		{ "j-hui/fidget.nvim", version = "*", opts = {} },
 		"hrsh7th/cmp-nvim-lsp",
