@@ -82,6 +82,7 @@ return {
 							},
 						},
 					},
+					{ name = "nvim_lsp_signature_help" }, -- Function signature hints while typing arguments
 					{ name = "luasnip", keyword_length = 2 },
 					{ name = "buffer", keyword_length = 3 },
 					{
