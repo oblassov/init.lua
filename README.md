@@ -20,6 +20,9 @@ A simple, fast, and modern personal Neovim configuration built with native Lua a
 ### Optional Tooling
 - **[Deno](https://deno.com/)**: Required only for [peek.nvim](https://github.com/toppair/peek.nvim) (live browser markdown preview).
 - **[lazygit](https://github.com/jesseduffield/lazygit)**: Required for the floating Git terminal window (`<leader>lg`).
+- **[Node.js](https://nodejs.org/)**: Required by Mason to install the Node-based servers (`ts_ls`, `eslint`, `pyright`, `bashls`, `html`).
+- **[golangci-lint](https://golangci-lint.run/)** v2: Used by `golangci-lint-langserver` and Go formatting. Install from your system package manager (e.g. `pacman -S golangci-lint`).
+- **[ShellCheck](https://www.shellcheck.net/)**: Enables Bash diagnostics in `bashls` (e.g. `pacman -S shellcheck`).
 - **Nerd Font**: Optional, but recommended for clean diagnostic signs, status badges, and Lazy UI icons (`vim.g.have_nerd_font = true` in [`set.lua`](lua/config/set.lua)).
 - **Clipboard Tool**:
   - Linux Wayland: `wl-clipboard` (`wl-copy` / `wl-paste`)
@@ -68,10 +71,13 @@ Plugins marked † track their latest stable SemVer release (`version = "*"`); t
 
 Language-specific servers and formatters are configured in [`lua/config/lazy/lsp.lua`](lua/config/lazy/lsp.lua) and [`lua/config/lazy/autoformat.lua`](lua/config/lazy/autoformat.lua):
 
-- **Go**: `gopls` (LSP with semantic tokens & codelenses), `golangci-lint-langserver` (detects local `.golangci.yml` or global `~/.config/golangci-lint/.golangci.yml`), and `gofmt` (via Conform).
+- **Go**: `gopls` (LSP with semantic tokens & codelenses), `golangci-lint-langserver` (detects local `.golangci.yml` or global `~/.config/golangci-lint/.golangci.yml`), and `golangci-lint fmt` (via Conform; applies the project's `.golangci.yml` formatters such as gofumpt/goimports, falls back to `gofmt`).
 - **Lua**: `lua-language-server` (`lua_ls` with Neovim API globals and `lazydev`), and `stylua` (via Conform).
 - **Markdown**: `markdown-oxide` (PKM & link completions) and `peek.nvim` for rendering.
 - **HTML & Templ**: `vscode-html-language-server` and `templ`.
+- **TypeScript / JavaScript**: `ts_ls` (with inlay hints), `eslint` (diagnostics & `:LspEslintFixAll` using the project's own ESLint), and `prettier` from the project's `node_modules` (via Conform).
+- **Python**: `pyright` (types; picks up the project's `.venv`), `ruff` (`ruff server` diagnostics & quick fixes), and `ruff_organize_imports` + `ruff_format` (via Conform).
+- **Bash**: `bash-language-server` (`bashls`), which runs `shellcheck` diagnostics when it is on `PATH`.
 
 ---
 

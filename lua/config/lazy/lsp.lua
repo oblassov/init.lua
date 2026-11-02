@@ -194,19 +194,70 @@ return {
 		--  - settings (table): Override the default settings passed when initializing the server.
 		--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 
+		-- Inlay hints shared by TypeScript and JavaScript buffers (toggle with <leader>th)
+		local ts_inlay_hints = {
+			includeInlayParameterNameHints = "literals",
+			includeInlayFunctionParameterTypeHints = true,
+			includeInlayVariableTypeHints = false,
+			includeInlayPropertyDeclarationTypeHints = true,
+			includeInlayFunctionLikeReturnTypeHints = true,
+			includeInlayEnumMemberValueHints = true,
+		}
+
 		local servers = {
 
 			-- clangd = {},
-			-- pyright = {},
 			-- rust_analyzer = {},
 			-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-			--
-			-- Some languages (like typescript) have entire language plugins that can be useful:
-			--    https://github.com/pmizio/typescript-tools.nvim
-			--
-			-- But for many setups, the LSP (`ts_ls`) will work just fine
-			-- ts_ls = {},
-			--
+
+			-- TypeScript / JavaScript language server (types, completion, refactors)
+			ts_ls = {
+				settings = {
+					typescript = { inlayHints = ts_inlay_hints },
+					javascript = { inlayHints = ts_inlay_hints },
+				},
+			},
+
+			-- ESLint diagnostics and quick fixes (:LspEslintFixAll).
+			-- Uses the project's own node_modules/eslint and eslint.config.js, same as Claude's lint hook.
+			eslint = {},
+
+			-- Python type checking
+			pyright = {
+				settings = {
+					pyright = {
+						disableOrganizeImports = true, -- Ruff organizes imports
+					},
+					python = {
+						analysis = {
+							typeCheckingMode = "standard",
+						},
+					},
+				},
+				-- Use the project's uv virtualenv (<root>/.venv) when present, so installed packages resolve
+				before_init = function(_, config)
+					if not config.root_dir then
+						return
+					end
+					local venv_python = config.root_dir
+						.. (vim.fn.has("win32") == 1 and "/.venv/Scripts/python.exe" or "/.venv/bin/python")
+					if vim.fn.executable(venv_python) == 1 then
+						config.settings.python =
+							vim.tbl_deep_extend("force", config.settings.python or {}, { pythonPath = venv_python })
+					end
+				end,
+			},
+
+			-- Ruff's built-in language server (`ruff server`): lint diagnostics and quick fixes.
+			-- Reads ruff.toml / pyproject.toml; hover is left to pyright.
+			ruff = {
+				on_attach = function(client)
+					client.server_capabilities.hoverProvider = false
+				end,
+			},
+
+			-- Bash language server; runs shellcheck automatically when it is on PATH
+			bashls = {},
 
 			gopls = {
 				filetypes = { "go", "gomod", "gowork", "gotmpl" },
