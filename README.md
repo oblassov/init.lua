@@ -35,32 +35,32 @@ A simple, fast, and modern personal Neovim configuration built with native Lua a
 
 All plugins are managed by [lazy.nvim](https://github.com/folke/lazy.nvim) and modularized inside the [`lua/config/lazy/`](lua/config/lazy/) directory.
 
-Plugins marked † track their latest stable SemVer release (`version = "*"`); the rest follow their default branch, because their tags are missing or years out of date. Updates only happen on demand via `:Lazy update`.
+Every plugin tracks its latest stable branch (e.g. `main`, `master`, or explicit mainline branch such as `harpoon2`). Release tags and versions are avoided unless explicitly recommended by the plugin documentation. Updates only happen on demand via `:Lazy update`.
 
 | Category | Plugins | Purpose |
 | :--- | :--- | :--- |
-| **Theme & UI** | [`folke/tokyonight.nvim`](https://github.com/folke/tokyonight.nvim) † | Main theme (defaults to `tokyonight-day`). Hotswap themes with `:ColorMyPencils <theme>`. |
-| | [`j-hui/fidget.nvim`](https://github.com/j-hui/fidget.nvim) † | Lightweight status & progress notifications for LSP. |
-| | [`lukas-reineke/indent-blankline.nvim`](https://github.com/lukas-reineke/indent-blankline.nvim) † | Visual indentation guides and active scope indicators. |
-| **Navigation & Search** | [`nvim-telescope/telescope.nvim`](https://github.com/nvim-telescope/telescope.nvim) † | Modular fuzzy finder (Ivy theme layout). |
+| **Theme & UI** | [`folke/tokyonight.nvim`](https://github.com/folke/tokyonight.nvim) | Main theme (defaults to `tokyonight-day`). Hotswap themes with `:ColorMyPencils <theme>`. |
+| | [`j-hui/fidget.nvim`](https://github.com/j-hui/fidget.nvim) | Lightweight status & progress notifications for LSP. |
+| | [`lukas-reineke/indent-blankline.nvim`](https://github.com/lukas-reineke/indent-blankline.nvim) | Visual indentation guides and active scope indicators. |
+| **Navigation & Search** | [`nvim-telescope/telescope.nvim`](https://github.com/nvim-telescope/telescope.nvim) | Modular fuzzy finder (Ivy theme layout). |
 | | [`nvim-telescope/telescope-fzf-native.nvim`](https://github.com/nvim-telescope/telescope-fzf-native.nvim) | High-performance C-based fzf sorter for Telescope. |
 | | [`ThePrimeagen/harpoon`](https://github.com/ThePrimeagen/harpoon) | Harpoon 2 for fast home-row buffer pinning and switching. |
 | | [`local/telescope/multigrep`](lua/config/local/telescope/multigrep.lua) | Custom async two-query picker (pattern + file filter via `  `). |
 | **Syntax & Treesitter** | [`nvim-treesitter/nvim-treesitter`](https://github.com/nvim-treesitter/nvim-treesitter) | Parser manager on the `main` branch: installs parsers to `stdpath("data")/site` and enables Neovim's built-in treesitter highlighting and indentation via a `FileType` autocmd. Missing parsers auto-install on first use. |
-| | [`nvim-treesitter/nvim-treesitter-context`](https://github.com/nvim-treesitter/nvim-treesitter-context) † | Sticky context header showing the enclosing function/class. |
-| **LSP & Tool Management** | [`neovim/nvim-lspconfig`](https://github.com/neovim/nvim-lspconfig) † | Quickstart configs for Neovim's built-in LSP client. |
-| | [`mason-org/mason.nvim`](https://github.com/mason-org/mason.nvim) † | Portable package manager for LSP servers, linters, and formatters. |
-| | [`mason-org/mason-lspconfig.nvim`](https://github.com/mason-org/mason-lspconfig.nvim) † | Seamless bridge between Mason and `lspconfig`. |
+| | [`nvim-treesitter/nvim-treesitter-context`](https://github.com/nvim-treesitter/nvim-treesitter-context) | Sticky context header showing the enclosing function/class. |
+| **LSP & Tool Management** | [`neovim/nvim-lspconfig`](https://github.com/neovim/nvim-lspconfig) | Quickstart configs for Neovim's built-in LSP client. |
+| | [`mason-org/mason.nvim`](https://github.com/mason-org/mason.nvim) | Portable package manager for LSP servers, linters, and formatters. |
+| | [`mason-org/mason-lspconfig.nvim`](https://github.com/mason-org/mason-lspconfig.nvim) | Seamless bridge between Mason and `lspconfig`. |
 | | [`WhoIsSethDaniel/mason-tool-installer.nvim`](https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim) | Automatically installs missing Mason packages on startup. |
-| | [`folke/lazydev.nvim`](https://github.com/folke/lazydev.nvim) † & [`Bilal2453/luvit-meta`](https://github.com/Bilal2453/luvit-meta) | Lua LSP configuration for Neovim API, runtime, and plugins. |
+| | [`folke/lazydev.nvim`](https://github.com/folke/lazydev.nvim) & [`Bilal2453/luvit-meta`](https://github.com/Bilal2453/luvit-meta) | Lua LSP configuration for Neovim API, runtime, and plugins. |
 | **Completion & Snippets** | [`hrsh7th/nvim-cmp`](https://github.com/hrsh7th/nvim-cmp) | Extensible completion engine with border styling and custom source icons. |
-| | [`L3MON4D3/LuaSnip`](https://github.com/L3MON4D3/LuaSnip) † | Powerful snippet engine with expandable jump keymaps. |
+| | [`L3MON4D3/LuaSnip`](https://github.com/L3MON4D3/LuaSnip) | Powerful snippet engine with expandable jump keymaps. |
 | | [`rafamadriz/friendly-snippets`](https://github.com/rafamadriz/friendly-snippets) | Comprehensive collection of pre-made language snippets. |
 | | `cmp-nvim-lsp`, `cmp-buffer`, `cmp-path`, `cmp-cmdline`, `cmp_luasnip` | Specialized completion sources. |
-| **Formatting** | [`stevearc/conform.nvim`](https://github.com/stevearc/conform.nvim) † | Format-on-save and on-demand formatting (`<leader>f`). |
+| **Formatting** | [`stevearc/conform.nvim`](https://github.com/stevearc/conform.nvim) | Format-on-save and on-demand formatting (`<leader>f`). |
 | **Git & Terminal** | [`tpope/vim-fugitive`](https://github.com/tpope/vim-fugitive) | Comprehensive Git client with 3-way merge conflict helpers. |
 | | [`local/termit`](lua/config/local/termit.lua) | Custom terminal manager: floating LazyGit (`<leader>lg`) and stateful split terminal (`<C-\>`). |
-| **Diagnostics & Tools** | [`folke/trouble.nvim`](https://github.com/folke/trouble.nvim) † | Pretty diagnostics, references, quickfix, and symbols list. |
+| **Diagnostics & Tools** | [`folke/trouble.nvim`](https://github.com/folke/trouble.nvim) | Pretty diagnostics, references, quickfix, and symbols list. |
 | | [`mbbill/undotree`](https://github.com/mbbill/undotree) | Visualizes persistent undo history tree (`<leader>u`). |
 | | [`toppair/peek.nvim`](https://github.com/toppair/peek.nvim) | Live markdown preview in browser (`<leader>po` / `<leader>pc`). |
 | **Libraries** | [`nvim-lua/plenary.nvim`](https://github.com/nvim-lua/plenary.nvim) | Common Lua utilities required by Telescope, Harpoon, and others. |

@@ -1,7 +1,6 @@
 return {
 	-- Telescope: Fuzzy finder over files, git, symbols, and plugins
 	"nvim-telescope/telescope.nvim",
-	version = "*", -- Track latest stable semver release rolling (v0.2.x)
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 		{ "nvim-telescope/telescope-fzf-native.nvim", build = "make" },

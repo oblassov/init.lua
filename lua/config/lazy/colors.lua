@@ -25,8 +25,6 @@ end, { nargs = "?" })
 return {
 	{
 		"folke/tokyonight.nvim",
-		version = "*", -- Track latest stable semver release
-
 		lazy = false,
 		priority = 1000,
 		opts = {},
