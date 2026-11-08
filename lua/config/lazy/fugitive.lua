@@ -37,9 +37,14 @@ return {
 		})
 
 		-- 3-way merge conflict resolution shortcuts:
-		-- gu: diffget //2 -> accept hunk from LOCAL/target branch
-		-- gh: diffget //3 -> accept hunk from REMOTE/incoming branch
-		vim.keymap.set("n", "gu", "<cmd>diffget //2<CR>", { desc = "Git merge: take LOCAL changes (target)" })
-		vim.keymap.set("n", "gh", "<cmd>diffget //3<CR>", { desc = "Git merge: take REMOTE changes (incoming)" })
+		-- <leader>gu: diffget //2 -> accept hunk from LOCAL/target branch
+		-- <leader>gh: diffget //3 -> accept hunk from REMOTE/incoming branch
+		vim.keymap.set("n", "<leader>gu", "<cmd>diffget //2<CR>", { desc = "Git merge: take LOCAL changes (target)" })
+		vim.keymap.set(
+			"n",
+			"<leader>gh",
+			"<cmd>diffget //3<CR>",
+			{ desc = "Git merge: take REMOTE changes (incoming)" }
+		)
 	end,
 }

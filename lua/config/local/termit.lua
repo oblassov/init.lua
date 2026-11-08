@@ -14,11 +14,22 @@ local state = {
 	floating = { buf = -1, win = -1 }, -- Floating CLI window & buffer
 }
 
+-- Safely switch working directory to current file's directory (guards virtual URIs like fugitive://)
+local function safe_cd()
+	local path = vim.fn.expand("%:p")
+	if path and path ~= "" and not path:match("^%w+://") then
+		local dir = vim.fs.dirname(path)
+		if dir and vim.fn.isdirectory(dir) == 1 then
+			pcall(vim.cmd.cd, dir)
+		end
+	end
+end
+
 -- Creates or reuses a centered floating window
 local function create_floating_window(opts)
 	opts = opts or {}
 
-	vim.cmd("cd %:p:h") -- Set working directory to the current file's parent folder
+	safe_cd() -- Set working directory to the current file's parent folder (safely)
 
 	-- Calculate window dimensions based on editor size
 	local width = opts.width or math.floor(vim.o.columns * 0.95)
@@ -136,7 +147,7 @@ end
 local function create_side_window(opts)
 	opts = opts or {}
 
-	vim.cmd("cd %:p:h")
+	safe_cd()
 
 	-- Clamp split proportions between 20% and 50%
 	local w = math.min(math.max((opts.width or 0.34), 0.2), 0.5)

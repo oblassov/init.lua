@@ -93,15 +93,14 @@ General mappings are defined in [`lua/config/remap.lua`](lua/config/remap.lua), 
 - Visual `<leader>p`: Paste over selection without losing current register contents (black-hole delete).
 - `<leader>y` / `<leader>Y`: Yank to system clipboard.
 - `<leader>d`: Delete into black-hole register (preserves clipboard).
-- `<C-j>` / `<C-u>`: Scroll half-page down / up with cursor centered.
-- `<C-z>`: Decrement number under cursor (alias for `<C-x>`).
+- `<C-d>` / `<C-u>`: Scroll half-page down / up with cursor centered.
 - Terminal `<C-[><C-[>`: Quick escape from terminal to normal mode.
 
 ### Harpoon 2 ([`harpoon.lua`](lua/config/lazy/harpoon.lua))
 - `<leader>h` / `<leader>H`: Append / prepend file to Harpoon list.
 - `<C-h>`: Toggle Harpoon quick menu.
-- `<C-f>`, `<C-d>`, `<C-s>`, `<C-v>`, `<C-c>`, `<C-x>`: Jump directly to pinned slots 1 through 6.
-- `<leader><C-f>` ...: Replace file at slots 1 through 6 with active buffer.
+- `<leader>1` through `<leader>6`: Jump directly to pinned slots 1 through 6.
+- `<leader><C-1>` through `<leader><C-6>`: Replace file at slots 1 through 6 with active buffer.
 
 ### Telescope ([`telescope.lua`](lua/config/lazy/telescope.lua))
 - `<leader>pf`: Find files in project.
@@ -117,7 +116,7 @@ General mappings are defined in [`lua/config/remap.lua`](lua/config/remap.lua), 
 - `<leader>lg`: Toggle floating LazyGit window (press `q` to exit, `<C-]>` to hide).
 - `<C-\>`: Toggle persistent side terminal split.
 - `<leader>gt`: Open Fugitive Git status window.
-- Normal `gu` / `gh`: Merge conflict resolution — take LOCAL (`//2`) or REMOTE (`//3`) change.
+- `<leader>gu` / `<leader>gh`: Merge conflict resolution — take LOCAL (`//2`) or REMOTE (`//3`) change.
 
 ### Formatting & Tools
 - `<leader>f`: Format current buffer (Conform / LSP fallback).

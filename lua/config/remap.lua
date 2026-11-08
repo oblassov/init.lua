@@ -26,11 +26,8 @@ vim.keymap.set("n", "<leader>d", '"_d', { desc = "Delete without overwriting reg
 vim.keymap.set("v", "<leader>d", '"_d', { desc = "Delete selection without overwriting register" })
 
 -- Scroll half-page down/up and keep cursor centered
-vim.keymap.set("n", "<C-j>", "<C-d>zz", { desc = "Scroll half-page down (centered)" })
+vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Scroll half-page down (centered)" })
 vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Scroll half-page up (centered)" })
-
--- Decrement number alias (since Harpoon remaps <C-x>)
-vim.keymap.set("n", "<C-z>", "<C-x>", { desc = "Decrement number under cursor" })
 
 -- Exit terminal mode quickly
 vim.keymap.set("t", "<C-[><C-[>", "<c-\\><c-n>", { desc = "Exit terminal mode to normal mode" })
