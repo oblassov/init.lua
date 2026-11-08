@@ -80,10 +80,6 @@ vim.g.netrw_winsize = 34 -- Sets initial width of Netrw window to 34 columns
 -- Sets the command to run when using K in normal mode (help lookup)
 vim.o.keywordprg = ":help"
 
--- Shell configuration:
-if vim.fn.executable("zsh") == 1 then
-	vim.o.shell = "zsh"
-end
 -- PowerShell configuration
 -- vim.o.shellcmdflag = "-nologo -noprofile -ExecutionPolicy RemoteSigned -command"
 -- vim.o.shellxquote = ""
