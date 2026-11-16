@@ -39,7 +39,7 @@ Every plugin tracks its latest stable branch (e.g. `main`, `master`, or explicit
 
 | Category | Plugins | Purpose |
 | :--- | :--- | :--- |
-| **Theme & UI** | [`folke/tokyonight.nvim`](https://github.com/folke/tokyonight.nvim) | Main theme (defaults to `tokyonight-day`). Hotswap themes with `:ColorMyPencils <theme>`. |
+| **Theme & UI** | [`folke/tokyonight.nvim`](https://github.com/folke/tokyonight.nvim) | Main theme: TokyoNight Day Crisp when `background=light`, stock Night when dark (see [`tokyonight-day-crisp.md`](tokyonight-day-crisp.md)). `:ColorMyPencils [theme]` reloads edits to `colors.lua` and applies a theme. |
 | | [`j-hui/fidget.nvim`](https://github.com/j-hui/fidget.nvim) | Lightweight status & progress notifications for LSP. |
 | | [`lukas-reineke/indent-blankline.nvim`](https://github.com/lukas-reineke/indent-blankline.nvim) | Visual indentation guides and active scope indicators. |
 | **Navigation & Search** | [`nvim-telescope/telescope.nvim`](https://github.com/nvim-telescope/telescope.nvim) | Modular fuzzy finder (Ivy theme layout). |
